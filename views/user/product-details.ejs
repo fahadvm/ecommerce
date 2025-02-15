@@ -1,0 +1,389 @@
+<%- include('../partials/user/header') %>
+   
+
+    <style>
+        :root {
+            --dark-bg: #121212;
+            --accent-gold: #c4a277;
+            --secondary-bg: #543c0ec6;
+            --text-primary: #c4a277;
+            --text-secondary: #888;
+        }
+
+        .product-page {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 100px;
+        }
+
+        .product-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            /* 50% - 50% */
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .product-gallery {
+            text-align: center;
+        }
+
+        .main-image img {
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid var(--accent-gold);
+        }
+
+        .thumbnails {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .thumbnail img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .thumbnail.active img {
+            border-color: var(--accent-gold);
+        }
+
+        .product-info {
+            padding: 2rem;
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+        }
+
+        .product-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-gold);
+        }
+
+        .product-price {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .size-selector {
+            margin: 2rem 0;
+        }
+
+        .size-btn {
+            background: none;
+            border: 1px solid var(--accent-gold);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            margin: 0 0.5rem 0.5rem 0;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+
+        .size-btn.selected {
+            background-color: var(--accent-gold);
+            color: var(--dark-bg);
+        }
+
+        .add-to-cart,
+        .wishlist {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .add-to-cart {
+            background: #c4a277;
+            color: #121212;
+        }
+
+        .wishlist {
+            background: none;
+            border: 1px solid #c4a277;
+            color: #c4a277;
+        }
+
+        .recommended-section {
+            margin-top: 4rem;
+            padding: 2rem 0;
+            border-top: 1px solid #333;
+        }
+
+        .rating {
+            margin: 10px 0;
+            color: #ffcc00;
+            font-size: 1.2rem;
+        }
+
+        .original-price {
+            color: #888;
+            font-size: 1rem;
+        }
+
+        .discounted-price {
+            color: #28a745;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .offer {
+            color: red;
+            font-size: 1rem;
+        }
+
+        .stock-status {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .in-stock {
+            color: green;
+        }
+
+        .out-of-stock {
+            color: red;
+        }
+
+        .buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .reviews {
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        .review {
+            margin-bottom: 10px;
+        }
+
+        .recommended-title {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .recommended-products {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background-color: var(--secondary-bg);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .product-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .product-card h3 {
+            margin: 1rem 0;
+            color: var(--text-primary);
+        }
+
+        .product-card .price {
+            color: var(--accent-gold);
+            font-size: 1.2rem;
+        }
+
+        .main-image {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid var(--accent-gold);
+        }
+
+        .main-image img {
+            width: 100%;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .main-image:hover img {
+            transform: scale(1.5);
+            /* Zoom effect */
+        }
+    </style>
+
+    <div class="product-page">
+        <div class="product-container">
+            <!-- Product Gallery (Left Side - 50%) -->
+            <div class="product-gallery">
+                <div class="main-image">
+                    <img id="main-img" src="<%= product.productImages[0] %>" alt="<%= product.productName %>">
+                </div>
+                <div class="thumbnails">
+                    <% product.productImages.forEach((productImages, index)=> { %>
+                        <div class="thumbnail <%= index === 0 ? 'active' : '' %>">
+                            <img src="<%= productImages %>" alt="Thumbnail <%= productImages + 1 %>"
+                                onclick="changeImage('<%= productImages %>')">
+                        </div>
+                        <% }); %>
+                </div>
+            </div>
+
+            <!-- Product Info (Right Side - 50%) -->
+            <div class="product-info">
+                <h1 class="product-title" style="color: rgb(255, 174, 0);">
+                    <%= product.productName %>
+                </h1>
+                <p class="product-title">
+                    <%= product.shortDescription %>
+                </p>
+                <p class="product-information" style="color: #f4d260;">
+                    <span style="color: #ff9090;">nutritions:</span>
+                    <%= product.nutritionalInfo %>
+                </p>
+
+                <!-- ⭐ Ratings (Static) -->
+                <div class="rating">
+                    <span class="stars">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star-half-o"></i> <!-- Example: 4.5 Stars -->
+                    </span>
+                    <span class="rating-value">(4.5/5, 120 reviews)</span>
+                </div>
+
+                <!-- 💰 Price & Discounts (Dynamic) -->
+                <p class="original-price">Original Price: <del>$<%= product.regularPrice %></del></p>
+                <p class="discounted-price">Discounted Price: <span class="highlight">$<%= product.salePrice %></span>
+                </p>
+                <p class="offer">Offer Applied: <%= totalOffer %>% OFF</p>
+
+                <!-- 📦 Stock Availability (Dynamic) -->
+                <p class="stock-status">
+                    <% if (product.stock> 0) { %>
+                        <span class="in-stock">In Stock</span> (Only <%= product.stock %> left!)
+                            <% } else { %>
+                                <span class="out-of-stock">Out of Stock</span>
+                                <% } %>
+                </p>
+
+                <!-- 🛒 Add to Cart & Wishlist Buttons -->
+                <div class="buttons">
+                    <% if (product.stock> 0) { %>
+                        <button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+                        <% } %>
+                            <button class="wishlist" onclick="addToWishlist('<%= product._id %>')">❤ Add to
+                                Wishlist</button>
+                </div>
+
+                <!-- 📝 Reviews Section (Static) -->
+                <div class="reviews">
+                    <h3>Customer Reviews</h3>
+                    <div class="review">
+                        <strong>John Doe</strong>
+                        <p>⭐⭐⭐⭐⭐ - Amazing product! Loved the quality.</p>
+                    </div>
+                    <div class="review">
+                        <strong>Jane Smith</strong>
+                        <p>⭐⭐⭐⭐ - Great product, but delivery took some time.</p>
+                    </div>
+                    <div class="review">
+                        <strong>Michael Brown</strong>
+                        <p>⭐⭐⭐⭐⭐ - Worth every penny! Will buy again.</p>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <section class="related-product-area section_gap_bottom">
+		<div class="container">
+			<div class="row justify-content-center">
+				<div class="col-lg-6 text-center">
+					<div class="section-title">
+						<h1>Related Products</h1>
+						<p>Explore our range of related products that complement your purchase. Each item is carefully selected to ensure the highest quality and satisfaction.</p>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<%for(let i=0;i< products.length; i++){ %>
+					<div class="col-lg-3 col-md-4 text-center">
+						<div class="single-product-item">
+							<div class="product-image">
+								<a href="/productDetails?id=<%=products[i]._id%>">
+									<img src="<%= products[i].productImages[0] %>" alt="<%= product.image %>">
+								</a>
+							</div>
+							<h3><%= products[i].productName %></h3>
+							<p class="product-price"><span>Per Kg</span> <%= product.salePrice %>$ </p>
+							<a href="/productDetails?id=<%=products[i]._id.toString()%>" class="cart-btn">
+								<i class="fas fa-shopping-cart"></i> view details</details>
+							</a>
+						</div>
+					</div>
+				<% }; %>
+			</div>
+            
+	</section>
+
+    <script>
+
+        // Function to change the main image when clicking a thumbnail
+        function changeImage(newSrc) {
+            const mainImg = document.getElementById('main-img');
+            mainImg.src = newSrc;
+
+            // Remove active class from all thumbnails and add it to the selected one
+            document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+            event.target.parentElement.classList.add('active');
+        }
+
+        // Zoom effect
+        document.getElementById('main-img').addEventListener('mousemove', function (event) {
+            const img = event.target;
+            const { left, top, width, height } = img.getBoundingClientRect();
+            const x = (event.clientX - left) / width * 100;
+            const y = (event.clientY - top) / height * 100;
+            img.style.transformOrigin = `${x}% ${y}%`;
+        });
+
+        // Thumbnail interaction
+        document.querySelectorAll('.thumbnail img').forEach(thumb => {
+            thumb.addEventListener('click', () => {
+                const mainImg = document.querySelector('.main-image img');
+                mainImg.src = thumb.src;
+                document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
+                thumb.parentElement.classList.add('active');
+            });
+        });
+
+        // Size selection
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+            });
+        });
+    </script>
+
+    <%- include('../partials/user/footer') %>

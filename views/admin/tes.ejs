@@ -1,0 +1,120 @@
+<%- include("../../views/partials/admin/header") %>
+<head>
+   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+</head>
+<style>
+   .error-message{
+       color: red;
+   }
+   .thumbnails-container {
+       display: flex;
+       overflow-x: auto;
+   }
+   .thumbnail {
+       margin-right: 10px;
+   }
+</style>
+   <section class="content-main">
+       <div class="row">
+           <div class="col-9">
+               <div class="content-header">
+                   <h2 class="content-title">Add New Product</h2>
+               </div>
+           </div>
+           <div class="col-lg-6">
+               <div class="card mb-4">
+                   <div class="card-body">
+                       <form method="post" action="/admin/addProducts" enctype="multipart/form-data" id="productForm">
+                           <!-- Existing form fields remain unchanged -->
+                           
+                           <div class="card mb-2">
+                               <div class="card-header">
+                                   <h4>Choose images</h4>
+                               </div>
+                               <div class="border row">
+                                   <div id="addedImagesContainer" class="thumbnails-container"></div>
+                               </div>
+                               <div class="row">
+                                   <% for(let i = 1; i <= 4; i++) { %>
+                                   <div class="card-body align-items-center" style="margin-bottom: 20px;">
+                                       <img src="/placeholder.svg" alt="" id="imgView<%= i %>">
+                                       <input class="form-control" type="file" name="images" id="input<%= i %>"
+                                           accept="image/png, image/jpeg, image/jpg"
+                                           onchange="viewImage(event, <%= i %>)">
+                                   </div>
+                                   <div class="image-cropper d-flex align-items-center"
+                                       style="display:none; width: 300px; height: 200px; margin-bottom: 20px;">
+                                       <img src="/placeholder.svg" id="croppedImg<%= i %>" alt="">
+                                       <button type="button" id="saveButton<%= i %>" class="btn-sm btn-primary">Save</button>
+                                   </div>
+                                   <% } %>
+                               </div>
+                           </div>
+                           <div>
+                               <button class="btn btn-md rounded font-sm hover-up" type="submit">Publish</button>
+                           </div>
+                       </form>
+                   </div>
+               </div>
+           </div>
+       </div>
+   </section>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+<script>
+    // Existing JavaScript functions (validateForm, clearErrorMessages, displayErrorMessage) remain unchanged
+
+    function viewImage(event, index) {
+        let input = event.target;
+        let reader = new FileReader();
+        reader.onload = function () {
+            let dataURL = reader.result;
+            let image = document.getElementById("imgView" + index);
+            image.src = dataURL;
+            let cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                guides: true,
+                background: false,
+                autoCropArea: 1,
+                zoomable: true,
+            });
+
+            let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+            cropperContainer.style.display = 'block';
+
+            let saveButton = document.querySelector('#saveButton' + index)
+            saveButton.addEventListener('click', async function() {
+                let croppedCanvas = cropper.getCroppedCanvas();
+                let croppedImage = document.getElementById("croppedImg" + index);
+                croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
+
+                let timestamp = new Date().getTime();
+                let fileName = `cropped-img-${timestamp}-${index}.png`;
+
+                await croppedCanvas.toBlob(blob => {
+                    let input = document.getElementById('input' + index);
+                    let imgFile = new File([blob], fileName, { type: blob.type });
+                    const fileList = new DataTransfer();
+                    fileList.items.add(imgFile);
+                    input.files = fileList.files;
+                });
+
+                cropperContainer.style.display = 'none';
+                cropper.destroy();
+            });
+        };
+
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    document.getElementById("productForm").addEventListener("submit", function(event) {
+        event.preventDefault();
+        if (validateForm()) {
+            this.submit();
+        }
+    });
+</script>
+     
+<%- include("../../views/partials/admin/footer") %>
+

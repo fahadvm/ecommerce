@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome froot-peedika</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            background-color: #5f5b5b;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 900px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-container {
+            flex: 1;
+            max-width: 450px;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .image-container {
+            flex: 1;
+            max-width: 450px;
+            background-color: #EFE0DC;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .brand-image {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input.error {
+            border-color: red;
+            /* Red border for error */
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #004d56;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 20px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .divider span {
+            padding: 0 10px;
+        }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            gap: 8px;
+        }
+
+        .google-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #00a3b5;
+            text-decoration: none;
+        }
+
+        /* Error message styles */
+        .error-message {
+            color: rgb(245, 29, 29);
+            font-size: 14px;
+            border-radius: 5px;
+            margin-top: 5px;
+            display: none;
+            transition: opacity 0.5s ease;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: -100px;
+            
+            /* Add some spacing if needed */
+        }
+
+        .checkbox-group label {
+            margin: 0px;
+            
+            /* Space between checkbox and label */
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            padding: 0px;
+            font-size: 5px;
+        }
+
+
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+                max-width: 100%;
+            }
+
+            .login-container,
+            .image-container {
+                max-width: 100%;
+                padding: 30px;
+            }
+
+            .brand-image {
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-container">
+            <h1>Welcome to froots-peedika</h1>
+            <p class="subtitle">signup with your details</p>
+
+            <form action="/signup" method="post" id="signform">
+                <div class="form-group">
+                    <label for="name">Username</label>
+                    <input type="text" id="name" placeholder="Enter your name" name="username" required>
+                    <div id="error1" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" placeholder="Enter your email" name="email" required>
+                    <div id="error2" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" placeholder="Enter your phone number" name="phone" required>
+                    <div id="error3" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Enter your password" name="password" required>
+                    <div id="error4" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm-password">confirm Password</label>
+                    <input type="password" id="confirm-password" placeholder="RE-enter your password" name="cpassword"
+                        required>
+                    <div id="error5" class="error-message"></div>
+                </div>
+
+                <div class="checkbox-group">
+                    <div class="first"> <input type="checkbox" id="terms" required></div>
+                    <div class="second"><label for="terms">I agree to the <a href="#">terms & policy</a></label></div>
+                    
+                </div>
+
+                <button type="submit" class="login-btn">signup</button>
+
+                <div class="divider">
+                    <span>or</span>
+                </div>
+
+                <a href="/auth/google" class="google-btn">
+                    <img src="assets/img/google.jpg" alt="Google Logo">
+                    Sign in with Google
+                </a>
+
+                <div class="signup-link">
+                    Do have an account? <a href="/login">login</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="image-container">
+            <img src="assets/img/frootspeedika.png" alt="Froot-Peedika Logo" class="brand-image">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const nameid = document.getElementById('name');
+            const emailId = document.getElementById('email');
+            const phoneid = document.getElementById('phone');
+            const passid = document.getElementById('password');
+            const Cpassid = document.getElementById('confirm-password');
+            const error1 = document.getElementById('error1');
+            const error2 = document.getElementById('error2');
+            const error3 = document.getElementById('error3');
+            const error4 = document.getElementById('error4');
+            const error5 = document.getElementById('error5');
+            const signform = document.getElementById('signform');
+
+            function nameValidateCheckin() {
+                const nameval = nameid.value.trim();
+                const namePattern = /^[A-Za-z\s]+$/;
+                if (!nameval) {
+                    error1.style.display = "block";
+                    error1.innerHTML = "Please enter a valid Name";
+                    nameid.classList.add('error');
+                } else if (!namePattern.test(nameval)) {
+                    error1.style.display = "block";
+                    error1.innerHTML = "Name can only contain Alphabets and spaces";
+                    nameid.classList.add('error');
+                } else {
+                    error1.style.display = "none";
+                    nameid.classList.remove('error');
+                }
+            }
+
+            function emailValidateCheckin() {
+                const emailval = emailId.value.trim();
+                const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+                if (!emailPattern.test(emailval)) {
+                    error2.style.display = "block";
+                    error2.innerHTML = "Invalid Format";
+                    emailId.classList.add('error');
+                } else {
+                    error2.style.display = "none";
+                    emailId.classList.remove('error');
+                }
+            }
+
+            function phoneValidateCheckin() {
+                const phoneval = phoneid.value.trim();
+                if (!phoneval || phoneval.length !== 10 || isNaN(phoneval)) {
+                    error3.style.display = "block";
+                    error3.innerHTML = "Enter a valid 10-digit phone number";
+                    phoneid.classList.add('error');
+                } else {
+                    error3.style.display = "none";
+                    phoneid.classList.remove('error');
+                }
+            }
+
+            function passValidateCheckin() {
+                const passval = passid.value;
+                const cpassval = Cpassid.value;
+                const alpha = /[a-zA-Z]/;
+                const digit = /\d/;
+
+                if (passval.length < 8) {
+                    error4.style.display = "block";
+                    error4.innerHTML = "Password must be at least 8 characters long";
+                    passid.classList.add('error');
+                } else if (!alpha.test(passval) || !digit.test(passval)) {
+                    error4.style.display = "block";
+                    error4.innerHTML = "Password must contain both letters and numbers";
+                    passid.classList.add('error');
+                } else {
+                    error4.style.display = "none";
+                    passid.classList.remove('error');
+                }
+
+                if (cpassval && passval !== cpassval) {
+                    error5.style.display = "block";
+                    error5.innerHTML = "Passwords do not match";
+                    Cpassid.classList.add('error');
+                } else {
+                    error5.style.display = "none";
+                    Cpassid.classList.remove('error');
+                }
+            }
+
+            nameid.addEventListener('input', nameValidateCheckin);
+            emailId.addEventListener('input', emailValidateCheckin);
+            phoneid.addEventListener('input', phoneValidateCheckin);
+            passid.addEventListener('input', passValidateCheckin);
+            Cpassid.addEventListener('input', passValidateCheckin);
+
+            signform.addEventListener('submit', function (e) {
+                nameValidateCheckin();
+                emailValidateCheckin();
+                phoneValidateCheckin();
+                passValidateCheckin();
+
+                if (error1.style.display === "block" ||
+                    error2.style.display === "block" ||
+                    error3.style.display === "block" ||
+                    error4.style.display === "block" ||
+                    error5.style.display === "block") {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

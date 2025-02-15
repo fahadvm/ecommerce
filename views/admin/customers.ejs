@@ -1,0 +1,192 @@
+<%- include("../../views/partials/admin/header") %>
+
+<style>
+  :root {
+    --primary-color: #3498db;
+    --secondary-color: #2c3e50;
+    --success-color: #2ecc71;
+    --danger-color: #e74c3c;
+    --info-color: #3498db;
+    --light-gray: #ecf0f1;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+  }
+
+  .content-main {
+    padding: 2rem;
+  }
+
+  .card {
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+  }
+
+  .card-header {
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .form-control {
+    border-radius: 20px;
+  }
+
+  .btn {
+    border-radius: 20px;
+    padding: 0.5rem 1.5rem;
+  }
+
+  .btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+
+  .btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+  }
+
+  .btn-danger {
+    background-color: var(--danger-color);
+    border-color: var(--danger-color);
+  }
+
+  .table {
+    background-color: white;
+  }
+
+  .table th {
+    background-color: var(--secondary-color);
+    color: white;
+  }
+
+  .pagination {
+    justify-content: center;
+    margin-top: 2rem;
+  }
+
+  .pagination .page-link {
+    color: var(--secondary-color);
+    border-radius: 20px;
+    margin: 0 5px;
+  }
+
+  .pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+</style>
+
+<section class="content-main">
+  <div class="content-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2 class="content-title">Customers Management</h2>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header">
+      <h4 class="card-title mb-0">Search Customers</h4>
+    </div>
+    <div class="card-body">
+      <form action="/admin/users/" method="get">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search customers..." name="search">
+          <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h4 class="card-title mb-0">Customer List</h4>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Phone No</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            <% for(let i=0; i < data.length; i++) { %>
+              <tr>
+                <td><%= data[i].username %></td>
+                <td><%= data[i].email %></td>
+                <td><%= data[i].phone %></td>
+                <td>
+                  <% if(data[i].isBlocked == false || data[i].isBlocked === "false") { %>
+                    <a href="#" onclick="confirmBlock(event, '<%= data[i]._id %>')" class="btn btn-sm btn-danger">Block</a>
+                    <% } else { %>
+                      <a href="#" onclick="confirmUnblock(event, '<%= data[i]._id %>')" class="btn btn-sm btn-success">Unblock</a>
+                    <!-- <a href="#" onclick="confirmBlock(event, '<%= data[i]._id %>')" class="btn btn-sm btn-danger">Block</a> -->
+
+                  <% } %>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <% for(let i=1; i <= totalPages; i++) { %>
+        <li class="page-item <%= (i === currentPage) ? 'active' : '' %>">
+          <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+        </li>
+      <% } %>
+    </ul>
+  </nav>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function confirmBlock(event, userId) {
+    event.preventDefault(); // Prevent default link action
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to block this user!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Block!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/admin/blockCustomer?id=" + userId;
+      }
+    });
+  }
+
+  function confirmUnblock(event, userId) {
+    event.preventDefault();
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to unblock this user!",
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#28a745",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, Unblock!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/admin/unblockCustomer?id=" + userId;
+      }
+    });
+  }
+</script>
+
+<%- include("../../views/partials/admin/footer") %>

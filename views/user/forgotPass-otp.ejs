@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Verification</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+  <style>
+    body {
+    font-family: system-ui, -apple-system, sans-serif;
+    /* background-color: #121212; Dark background */
+    background-image: url('images/verify.jpg');
+    background-size: cover; /* Ensures the image covers the entire area */
+    background-position: center center; /* Centers the image */
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    color: #C4A277; /* Normal text color */
+}
+
+.container {
+    text-align: center;
+    padding: 2rem;
+    max-width: 400px;
+    width: 100%;
+    background-color: #2A2A2A; /* Slightly lighter background for the form */
+    border-radius: 0.5rem; /* Rounded corners */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5); /* Subtle shadow for highlighting */
+    border: 2px solid #4FD1C5; /* Soft teal border */
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    color: #C4A277; /* Golden shade */
+}
+
+input {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    border: 1px solid #8B6F48; /* Soft brown border */
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    background-color: #1E1E1E; /* Darker input background */
+    color: #C4A277; /* Text color */
+}
+
+input:focus {
+    border-color: #4FD1C5; /* Highlight border color on focus */
+    outline: none;
+}
+
+input::placeholder {
+    color: #A58B65; /* Subtle placeholder text */
+}
+
+.submit-button {
+    background-color: #005A6E; /* Deep teal */
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    cursor: pointer;
+    width: auto;
+    min-width: 120px;
+    transition: background 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #007A90; /* Slightly lighter teal on hover */
+}
+
+.timer {
+    margin: 1rem 0;
+    color: #A58B65; /* Softer gold shade */
+}
+
+.resend-container {
+    margin-top: 1rem;
+}
+
+.wrong-email {
+    color: #A58B65; /* Softer contrast */
+    display: inline;
+}
+
+.resend-link {
+    color: #4FD1C5; /* Turquoise accent */
+    text-decoration: none;
+    margin-left: 0.5rem;
+    cursor: pointer;
+}
+
+.resend-button {
+    background-color: #4FD1C5; /* Turquoise accent */
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: auto;
+    min-width: 120px;
+    margin-top: 1rem;
+}
+
+.resend-button:hover {
+    background-color: #33B5A6; /* Lighter turquoise on hover */
+}
+
+.resend-button:focus {
+    outline: none; /* Remove the default focus outline */
+    box-shadow: 0 0 0 2px rgba(79, 209, 197, 0.5); /* Custom focus outline */
+}
+
+
+.resend-link:hover {
+    color: #33B5A6; /* Lighter turquoise on hover */
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Please enter the OTP sent to your email:</h1>
+
+    <form class="otp-container" id="otpForm" action="/pass-verify-otp" method="post" onsubmit="return validateOTPForm()">
+      <input id="otp" type="text" maxlength="6" name="otp" pattern="[0-9]*" inputmode="numeric" required>
+
+      <div class="timer" id="timer">
+        Please wait <span id="countdown">
+          <%= typeof timeLeft !=='undefined' ? timeLeft : 30 %>
+        </span> seconds before requesting another code.
+      </div>
+
+
+      <button type="submit" class="submit-button">Submit</button>
+    </form>
+
+    <div class="resend-container">
+      <a href="/signup"><span class="wrong-email">Wrong Email?</span></a><br>
+      <button type="button" class="resend-button" onclick="resendOTP()">Resend OTP</button>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    let timeLeft =' <%= typeof timeLeft !== "undefined" ? timeLeft : 30 %>'; // Get initial time from backend
+    const countdownElement = document.getElementById('countdown');
+    let timerInterval;
+  
+    function startTimer() {
+      clearInterval(timerInterval); // Clear any existing timer to prevent duplicates
+      countdownElement.innerText = timeLeft; // Set initial countdown text
+  
+      timerInterval = setInterval(() => {
+        if (timeLeft > 0) {
+          countdownElement.innerText = timeLeft;
+          timeLeft--;
+        } else {
+          clearInterval(timerInterval);
+          document.getElementById('timer').innerText = 'You can now request a new OTP.';
+        }
+      }, 1000);
+    }
+  
+    startTimer(); // Start the initial countdown
+  
+    $("#otpForm").submit(function (event) {
+      event.preventDefault(); // Prevent default form submission
+      validateOTPform();
+    });
+  
+    function validateOTPform() {
+      const otpInput = $("#otp").val().trim();
+  
+      if (!otpInput) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Please enter an OTP!",
+        });
+        return;
+      }
+  
+      console.log("Sending OTP:", otpInput); // Debugging output
+  
+      $.ajax({
+        type: "POST",
+        url: "/verify-passForgot-otp",
+        data: JSON.stringify({ otp: otpInput }), // Convert to JSON
+        contentType: "application/json", // Set content type to JSON
+        success: function (response) {
+          console.log("Server Response:", response); // Debugging output
+  
+          if (response.success) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP Verified Successfully",
+              showConfirmButton: false,
+              timer: 1500,
+            }).then(() => {
+              window.location.href = response.redirectUrl;
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: response.message,
+            });
+          }
+        },
+        error: function (xhr) {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid OTP",
+            text: xhr.responseJSON ? xhr.responseJSON.message : "Please try again",
+          });
+        }
+      });
+    }
+  
+    function resendOTP() {
+      clearInterval(timerInterval); // Stop existing timer
+      timeLeft = 30; // Reset countdown value
+      countdownElement.innerText = timeLeft; // Update countdown UI
+      document.getElementById('otp').disabled = false; // Enable input
+  
+      startTimer(); // Restart countdown
+  
+      $.ajax({
+        type: "POST",
+        url: "/resend-forgot-otp",
+        success: function (response) {
+          if (response) {
+            Swal.fire({
+              icon: "success",
+              title: "OTP Resent Successfully",
+              showConfirmButton: false,
+              timer: 1500,
+            });
+          } else {
+            Swal.fire({
+              icon: "error",
+              title: "Error",
+              text: "An error occurred while resending OTP. Please try again.",
+            });
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
