@@ -1,0 +1,52 @@
+<%- include("../partials/admin/header") %>
+
+<div class="container mt-4">
+    <h1 class="mb-4">Transactions</h1>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Transaction ID</th>
+                <th>Date</th>
+                <th>User</th>
+                <th>Type</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% if (transactions.length > 0) { %>
+                <% transactions.forEach(transaction => { %>
+                    <tr>
+                        <td><%= transaction.transactionId %></td>
+                        <td><%= new Date(transaction.createdAt).toLocaleDateString() %></td>
+                        <td>
+                            <% if (transaction.userId) { %>
+                                <%= transaction.userId.name %> (<%= transaction.userId.email %>)
+                            <% } else { %>
+                                Unknown User
+                            <% } %>
+                        </td>
+                        <td>
+                            <span class="badge <%= transaction.transactionType === 'credit' ? 'bg-success' : 'bg-danger' %>">
+                                <%= transaction.transactionType %>
+                            </span>
+                        </td>
+                        <td>₹<%= transaction.amount.toFixed(2) %></td>
+                    </tr>
+                <% }) %>
+            <% } else { %>
+                <tr>
+                    <td colspan="5" class="text-center">No transactions found</td>
+                </tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Transactions page loaded.");
+    });
+</script>
+
+<%- include("../partials/admin/footer") %>

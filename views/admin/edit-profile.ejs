@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - <%= admin.username %></title>
+    <style>
+        /* Reuse styles from the profile page */
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; padding: 40px; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        h1 { font-size: 28px; color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { font-weight: 600; color: #2980b9; display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        button { background-color: #3498db; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Profile</h1>
+        <form action="/admin/update-profile/<%= admin._id %>" method="POST">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="<%= admin.username %>" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<%= admin.email %>" required>
+            </div>
+            <div class="form-group">
+                <label for="avatar">Avatar URL</label>
+                <input type="text" id="avatar" name="avatar" value="<%= admin.avatar || '' %>" placeholder="Optional">
+            </div>
+            <button type="submit">Save Changes</button>
+            <a href="/admin/profile" class="back-link">Cancel</a>
+        </form>
+    </div>
+</body>
+</html>

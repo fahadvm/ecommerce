@@ -1,0 +1,433 @@
+<%-include("../../views/partials/user/header")%>
+
+    <title>Frootspeedika - Manage Addresses</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz@6..96&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #ffffff;
+            /* Matches header & footer */
+            --accent-orange: #ff8c42;
+            /* Orange accent for fruits */
+            --secondary-bg: #0A2E36;
+            /* Dark teal, complements header/footer */
+            --text-primary: #ffffff;
+            /* White text */
+            --text-secondary: #cccccc;
+            /* Light gray for secondary text */
+            --gradient-bg: linear-gradient(135deg, #ff8c42, #ff6f61);
+            /* Gradient for cards */
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background: var(--secondary-bg);
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(255, 140, 66, 0.1);
+            /* Orange border */
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .sidebar a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar .active {
+            background: rgba(255, 140, 66, 0.1);
+            /* Orange hover effect */
+            transform: translateX(5px);
+        }
+
+        .sidebar i {
+            width: 25px;
+            text-align: center;
+        }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .address-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .address-card {
+            background: var(--gradient-bg);
+            border: none;
+            padding: 20px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .address-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .address-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .address-card p {
+            margin: 5px 0;
+            font-size: 0.9rem;
+        }
+
+        .address-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #ff8c42;
+        }
+
+        .btn-primary:hover {
+            background-color: white;
+            color: #ff6f61;
+        }
+
+        .btn-danger {
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #ff4444;
+        }
+
+        .btn-danger:hover {
+            background-color: white;
+            color: #ff0000;
+        }
+
+        .add-address-btn {
+            background: var(--gradient-bg);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .add-address-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(255, 140, 66, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 50%;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .address-type {
+            display: flex;
+            gap: 15px;
+        }
+    </style>
+    </head>
+
+    <body>
+        <!-- Breadcrumb Section -->
+        <div class="breadcrumb-section breadcrumb-bg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2 text-center">
+                        <div class="breadcrumb-text">
+                            <p>Fresh and Organic</p>
+                            <h1>Manage Addresses</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End Breadcrumb Section -->
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                    <h3 class="mb-4">Frootspeedika</h3>
+                    <a href="/userProfile"><i class="fas fa-user"></i> Dashboard</a>
+                    <a href="/orders"><i class="fas fa-history"></i> Order History</a>
+                    <a href="/address" class="active"><i class="fas fa-map-marker-alt"></i> Address Book</a>
+                    <a href="/editProfile"><i class="fas fa-cog"></i> Account Settings</a>
+                    <a href="/wallet"><i class="fa-solid fa-wallet"></i> Wallet</a>
+                    <a href="/coupons"><i class="fa-duotone fa-solid fa-ticket"></i> Coupons</a>
+                    <a href="/#" onclick="confirmAdminLogout(event)"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </nav>
+                <!-- Main Content -->
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content">
+                    <h1 class="mb-4">Manage Addresses</h1>
+
+                    <button class="btn add-address-btn" onclick="showAddForm()">
+                        <i class="fas fa-plus"></i> Add New Address
+                    </button>
+
+                    <div class="address-container">
+                        <%if(addresses){%>
+                            <% addresses.address.forEach(address=> { %>
+                                <div class="address-card">
+                                    <h3>
+                                        <%= address.name %>
+                                    </h3>
+                                    <p>
+                                        <%= address.landMark %>
+                                    </p>
+                                    <p>
+                                        <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                                    </p>
+                                    <p>phone: <%= address.phone %>
+                                    </p>
+                                    <p>Address Type: <%= address.addressType %>
+                                    </p>
+
+                                    <div class="address-actions">
+                                        <button class="btn btn-primary"
+                                            onclick="showEditForm('<%= address.id %>', '<%= address.name %>', '<%= address.phone %>', '<%= address.altPhone %>', '<%= address.pincode %>', '<%= address.landMark %>', '<%= address.city %>', '<%= address.state %>', '<%= address.addressType %>')">
+                                            <i class="fas fa-edit"></i>edit
+                                        </button>
+
+                                        <form action="/delete-address/<%= address.id %>" method="POST"
+                                            style="display: inline;">
+                                            <button type="submit" class="btn btn-danger"
+                                                onclick="return confirm('Are you sure you want to delete this address?')">
+                                                <i class="fas fa-trash"></i>delete
+                                            </button>
+                                        </form>
+                                        <%if(address.isDefault){%>
+                                            <button class="btn btn-primary"
+                                                onclick="setDefault('<%= address.id %>', '<%= address.name %>', '<%= address.phone %>', '<%= address.altPhone %>', '<%= address.pincode %>', '<%= address.landMark %>', '<%= address.city %>', '<%= address.state %>', '<%= address.addressType %>')">
+                                                <i class="fa-solid fa-map-pin"></i>
+                                            </button>
+                                            <%}%>
+                                    </div>
+                                </div>
+                                <% }); %>
+                                    <%}else{%>
+                                        <div class="address-card">
+                                            <h3>no address</h3>
+                                            <h3 class="mb-5"></h3>
+                                        </div>
+                                        <%}%>
+                    </div>
+
+                    <!-- Add/Edit Address Modal -->
+                    <div id="addressModal" class="modal">
+                        <div class="modal-content">
+                            <h2 id="modalTitle">Add New Address</h2>
+                            <form id="addressForm" action="/add-address" method="POST">
+                                <input type="hidden" name="addressId" id="addressId">
+
+                                <div class="form-group">
+                                    <label for="name">Full Name:</label>
+                                    <input type="text" id="name" name="name" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone">phone Number:</label>
+                                    <input type="number" id="phone" name="phone" required maxlength="10">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="altPhone">Alternate phone Number:</label>
+                                    <input type="number" id="altPhone" name="altPhone" required maxlength="10">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="pincode">Pincode:</label>
+                                    <input type="number" id="pincode" name="pincode" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="landMark">Landmark:</label>
+                                    <input type="text" id="landMark" name="landMark" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="city">City:</label>
+                                    <input type="text" id="city" name="city" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="state">State:</label>
+                                    <input type="text" id="state" name="state" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Address Type:</label>
+                                    <div class="address-type">
+                                        <label>
+                                            <input type="radio" name="addressType" value="home" required> Home
+                                        </label>
+                                        <label>
+                                            <input type="radio" name="addressType" value="work"> Work
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary">Save Address</button>
+                                    <button type="button" class="btn btn-danger" onclick="closeModal()">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+        <%-include("../../views/partials/user/footer")%>
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                function showAddForm() {
+                    document.getElementById('modalTitle').textContent = 'Add New Address';
+                    document.getElementById('addressForm').action = '/add-address';
+                    document.getElementById('addressId').value = '';
+                    document.getElementById('addressModal').style.display = 'block';
+                }
+
+                function setDefault(id, name, phone, altPhone, pincode, landMark, city, state, addressType) {
+                    if (!confirm('Are you sure you want to set this as your default address?')) {
+                        return;
+                    }
+
+                    fetch('/set-default-address', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ addressId: id })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            } else {
+                                alert('Failed to set default address: ' + (data.message || 'Unknown error'));
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('An error occurred while setting the default address.');
+                        });
+                }
+
+                function showEditForm(id, name, phone, altPhone, pincode, landMark, city, state, type) {
+                    document.getElementById('modalTitle').textContent = 'Edit Address';
+                    document.getElementById('addressForm').action = '/editAddress';
+                    document.getElementById('addressId').value = id;
+
+                    document.getElementById('name').value = name;
+                    document.getElementById('phone').value = phone;
+                    document.getElementById('altPhone').value = altPhone;
+
+
+                    document.getElementById('pincode').value = pincode;
+                    document.getElementById('landMark').value = landMark;
+                    document.getElementById('city').value = city;
+                    document.getElementById('state').value = state;
+
+                    const typeRadios = document.getElementsByName('addressType');
+                    typeRadios.forEach(radio => {
+                        radio.checked = (radio.value === type);
+                    });
+
+                    document.getElementById('addressModal').style.display = 'block';
+                }
+
+                function closeModal() {
+                    document.getElementById('addressModal').style.display = 'none';
+                }
+            </script>
+            <script>
+                function confirmAdminLogout(event) {
+                event.preventDefault();
+                Swal.fire({
+                title: "Are you sure?",
+                text: "You will be logged out!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Logout"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/logout"; // Redirect only if confirmed
+                }
+            });
+                
+            }
+            </script>
+
+    </body>
+
+    </html>

@@ -6,7 +6,7 @@ const cartSchema = new Schema(
     userId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true, 
+      required: true,
     },
     items: [
       {
@@ -22,18 +22,18 @@ const cartSchema = new Schema(
         },
         price: {
           type: Number,
-          required: true,
+          required: false,
         },
         totalPrice: {
           type: Number,
-          required: true,
+          required: false,
         },
         status: {
           type: String,
           enum: ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], 
           default: 'Placed',
         },
-        cancellationReason: {
+        cancellationReason: { 
           type: String,
           default: 'none',
         },

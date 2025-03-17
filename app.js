@@ -56,7 +56,7 @@ app.use('/admin',adminRouters)
 
 db() 
 app.listen(process.env.PORT,()=>{
-    console.log('server running http://localhost:3002')
+    console.log(`server running http://localhost:${process.env.PORT}`)
 })
 
 

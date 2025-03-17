@@ -4,6 +4,14 @@ const admincontroller = require("../controllers/admin/adminController")
 const customerController = require("../controllers/admin/customerController")
 const categoryController = require('../controllers/admin/categoryController')
 const productController = require('../controllers/admin/productController')
+const orderController = require("../controllers/admin/orderController");
+const couponController = require("../controllers/admin/couponController");
+const salesController = require("../controllers/admin/salesController");
+const transactionsController = require("../controllers/admin/transactionController");
+const profileController = require("../controllers/admin/profileController")
+
+
+
 const { adminAuth } = require('../middlewares/auth');
 const multer = require("multer");
 const upload = multer();
@@ -11,7 +19,7 @@ const upload = multer();
 
 
 
-
+//  Admin Authentication
 router.get('/login',admincontroller.loadLogin)
 router.post('/login',admincontroller.login);
 router.get('/', adminAuth, admincontroller.loadDashboard);
@@ -22,6 +30,13 @@ router.get('/pageerror', admincontroller.pageError);
 router.get('/users', adminAuth, customerController.customerInfo);
 router.get('/blockCustomer', adminAuth, customerController.customerBlocked);
 router.get('/unBlockCustomer', adminAuth, customerController.customerUnblocked);
+
+router.get("/Profile", adminAuth, profileController.loadprofile)
+router.get("/edit-profile/:id", adminAuth, profileController.loadEditProfile)
+router.post("/update-profile/:id", adminAuth,upload.single('profilePicture'), profileController.updateProfile)
+
+
+
 
 
 router.get('/category',adminAuth,categoryController.categoryInfo)
@@ -53,7 +68,6 @@ router.post("/removeProductOffer",adminAuth,productController.removeProductOffer
 router.get("/blockProduct",adminAuth,productController.blockProduct);
 router.get("/unblockProduct",adminAuth,productController.unblockProduct);
 
-router.get('/deleteProduct',adminAuth,productController.deleteProduct);
 
 router.get("/editProduct",adminAuth,productController.getEditProduct)
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
@@ -67,17 +81,36 @@ router.post("/editProduct/:id", adminAuth,upload.fields([
 
 
 
+//order management
+
+router.get('/orders', adminAuth, orderController.getOrders);
+router.get('/orders/:id', adminAuth, orderController.getOrderDetails);
+router.post('/orders/update-status', adminAuth, orderController.updateOrderStatus);
+router.post('/orders/cancel', adminAuth, orderController.cancelOrder);
+router.post('/orders/handle-return',orderController.handleOrderReturn)
 
 
 
+//coupon management
+router.get('/coupon', adminAuth, couponController.loadCoupon);
+router.post('/createCoupon',adminAuth, couponController.createCoupon)
+router.get('/deletecoupon',adminAuth, couponController.deletecoupon)
+router.get('/editCoupon',adminAuth, couponController.editCoupon)
+router.post('/updatecoupon',adminAuth, couponController.updatecoupon)
 
 
 
+router.get('/salesReport',adminAuth,salesController.loadSalesReports)
+router.post('/salesReport',salesController.generateSalesReports)
+
+//transactions management
+router.get('/transactions',adminAuth,transactionsController.loadtranactions)
+router.get("/transactions/:transactionId", adminAuth,transactionsController.transactionDetails)
 
 
 
-
-
+router.get("/api/top-selling", adminAuth, admincontroller.getTopSelling)
+router.get("/api/sales-data", adminAuth, admincontroller.getSalesData)
 
 
 

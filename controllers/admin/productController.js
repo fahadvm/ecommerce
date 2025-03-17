@@ -16,147 +16,6 @@ const getProductAddPage = async (req, res) => {
   }
 }
 
-// const saveImage = async (req, res) => {
-//   try {
-//     const file = req.file;
-//     if (file) {
-//         console.log('file varunund ')
-//       }
-//     if (!file) {
-//       return res.status(400).json({ success: false, message: "No image file provided" });
-//     }
-
-//     // Generate unique filename
-//     const filename = Date.now() + '-' + file.originalname.replace(/\s/g, "");
-//     const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
-
-//     // Resize & convert to WebP
-//     await sharp(file.buffer)
-//       .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-//       .webp({ quality: 80 })
-//       .toFile(filepath);
-
-//     return res.status(200).json({ success: true, message: "Image saved successfully", filename });
-//   } catch (error) {
-//     console.error("Error saving image:", error);
-//     return res.status(500).json({ success: false, message: "Error saving image" });
-//   }
-// };
-
-
-const saveImage = async (req, res) => {
-  try {
-    console.log("Received request to save image");
-    console.log("Request file details:", req.file);
-
-    const file = req.file;
-    if (!file) {
-      console.log("No file received");
-      return res.status(400).json({ success: false, message: "No image file provided" });
-    }
-
-    console.log("Processing image:", file.originalname);
-
-    // Generate unique filename
-    const filename = Date.now() + '-' + file.originalname.replace(/\s/g, "");
-    const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
-
-    console.log("Saving file to:", filepath);
-
-    // Resize & convert to WebP
-    await sharp(file.buffer)
-      .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toFile(filepath);
-
-    console.log("Image saved successfully:", filename);
-    return res.status(200).json({ success: true, message: "Image saved successfully", filename });
-  } catch (error) {
-    console.error("Error saving image:", error);
-    return res.status(500).json({ success: false, message: "Error saving image", error: error.message });
-  }
-};
-
-
-
-
-
-// 🟢 Add Product with Multiple Image Upload (using Sharp)
-const addProducts = async (req, res) => {
-  try {
-    const { productName, shortDescription, nutritionalInfo, weightSize, regularPrice, salePrice, stock, organic, expirationDate, importedLocal, freshFrozen, category } = req.body;
-    const files = req.files;
-
-    // // Check if at least one image is uploaded
-    if (!files || Object.keys(files).length < 4) {
-      return res.status(400).json({ success: false, message: "Please upload at least 4 image" });
-    }
-
-    // Check if product already exists
-    const productExists = await Product.findOne({ productName });
-    if (productExists) {
-      return res.status(400).json({ success: false, message: "Product already exists, try another name" });
-    }
-
-    // Ensure upload directory exists
-    const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Process images using Sharp
-    const imageFilenames = [];
-
-    for (let key in files) {
-      for (const file of files[key]) {
-        const filename = Date.now() + '-' + file.originalname.replace(/\s/g, "");
-        const filePath = path.join(uploadDir, filename);
-
-        await sharp(file.buffer)
-          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-          .webp({ quality: 80 })
-          .toFile(filePath);
-
-        imageFilenames.push(`uploads/product-images/${filename}`);
-      }
-    }
-
-    // Find category by name (ensure it exists)
-    const foundCategory = await Category.findOne({ name: category });
-    if (!foundCategory) {
-      return res.status(400).json({ success: false, message: "Category not found" });
-    }
-
-    // Create new product instance
-    const newProduct = new Product({
-      productName,
-      shortDescription,
-      nutritionalInfo,
-      weightSize,
-      regularPrice,
-      salePrice: salePrice || regularPrice, // If sale price is not provided, use regular price
-      stock,
-      organic,
-      expirationDate,
-      importedLocal,
-      freshFrozen,
-      category: foundCategory._id,
-      productImages: imageFilenames, // Array of image filenames
-      status: 'Available',
-
-    });
-
-
-    await newProduct.save();
-    return res.status(200).json({ success: true, message: " product added successfully" });
-
-   
-  } catch (error) {
-    console.error("Error saving product:", error);
-    return res.status(500).json({ success: false, message: "Error saving product" });
-    
-  }
-};
 
 const getAllProducts = async (req, res) => {
   try {
@@ -200,15 +59,6 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-// const getAllProducts = async (req,res) => {
-//   try {
-//     res.render("products")
-
-//   } catch (error) {
-//     res.redirect("/pageerror")
-
-//   }
-// }
 
 
 
@@ -226,7 +76,7 @@ const addProductOffer = async (req, res) => {
     await product.save();
 
     res.json({ status: true, message: "Offer added successfully" });
-    
+
   } catch (error) {
     console.error("Error in addProductOffer:", error);
     res.status(500).json({ status: false, message: "Internal server error" });
@@ -298,7 +148,183 @@ const getEditProduct = async (req, res) => {
     res.redirect("/pageerror")
   }
 }
+
+
+
 const editProduct = async (req, res) => {
+  try {
+    // const id = req.params.id
+    // const {
+    //   productName,
+    //   description,
+    //   fullDescription,
+    //   regularPrice,
+    //   salePrice,
+    //   quantity,
+    //   color,
+    //   brand,
+    //   processor,
+    //   graphicsCard,
+    //   storages,
+    //   display,
+    //   operatingSystem,
+    //   boxContains,
+    //   category,
+    // } = req.body
+
+    // const existingProduct = await Product.findOne({
+    //   productName: productName,
+    //   _id: { $ne: id },
+    // })
+
+    // if (existingProduct) {
+    //   return res
+    //     .status(400)
+    //     .json({ success: false, message: "Product with this name already exists. Please try another name." })
+    // }
+
+    // const updateFields = {
+    //   productName,
+    //   description,
+    //   fullDescription,
+    //   regularPrice,
+    //   salePrice,
+    //   quantity,
+    //   color,
+    //   brand,
+    //   processor,
+    //   graphicsCard,
+    //   storages,
+    //   display,
+    //   operatingSystem,
+    //   boxContains,
+    //   category,
+    // }
+
+    const id = req.params.id;
+    const {
+      productName,
+      shortDescription,
+      nutritionalInfo,
+      weightSize,
+      regularPrice,
+      salePrice,
+      stock,
+      organic,
+      expirationDate,
+      importedLocal,
+      freshFrozen,
+      category,
+      status,
+    } = req.body;
+
+    // Check if product with the same name already exists (excluding the current product)
+    const existingProduct = await Product.findOne({
+      productName: productName,
+      _id: { $ne: id },
+    });
+
+    if (existingProduct) {
+      return res.status(400).json({
+        success: false,
+        message: "Product with this name already exists. Please try another name.",
+      });
+    }
+
+    // Find the product by ID
+    // const product = await Product.findById(id);
+    // if (!product) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "Product not found",
+    //   });
+    // }
+
+    // Update product fields
+    const updateFields = {
+      productName,
+      shortDescription,
+      nutritionalInfo,
+      weightSize,
+      regularPrice,
+      salePrice,
+      stock,
+      organic,
+      expirationDate,
+      importedLocal,
+      freshFrozen,
+      category,
+      status,
+    };
+
+    const product = await Product.findById(id)
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" })
+    }
+
+    // Handle image updates with cropped data
+    for (let i = 1; i <= 4; i++) {
+      const croppedImageData = req.body[`croppedImage${i}`];
+      
+      if (croppedImageData && croppedImageData.startsWith('data:image')) {
+        // Extract base64 data from the data URL
+        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+        
+        // Generate filename
+        const filename = Date.now() + "-" + `cropped-image-${i}` + ".webp";
+        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
+
+        // Save the cropped image
+        await sharp(imageBuffer)
+          .webp({ quality: 80 })
+          .toFile(filepath);
+
+        const imagePath = `uploads/product-images/${filename}`;
+
+        // Update product image array
+        if (product.productImages[i - 1]) {
+          product.productImages[i - 1] = imagePath;
+        } else {
+          product.productImages.push(imagePath);
+        }
+      } else if (req.files && req.files[`image${i}`]) {
+        // Fallback to original file handling if no cropped data
+        const file = req.files[`image${i}`][0];
+        const filename = Date.now() + "-" + file.originalname.replace(/\s/g, "") + ".webp";
+        const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
+
+        await sharp(file.buffer)
+          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(filepath);
+
+        const imagePath = `uploads/product-images/${filename}`;
+
+        if (product.productImages[i - 1]) {
+          product.productImages[i - 1] = imagePath;
+        } else {
+          product.productImages.push(imagePath);
+        }
+      }
+    }
+
+    Object.assign(product, updateFields);
+    await product.save();
+
+    res.json({ success: true, message: "Product updated successfully" });
+  } catch (error) {
+    console.error("Error in editProduct:", error);
+    res.status(500).json({ success: false, message: "An error occurred while updating the product" });
+  }
+};
+
+
+
+
+
+
+const editProduct1 = async (req, res) => {
   try {
     const id = req.params.id;
     const {
@@ -465,6 +491,129 @@ const deleteProduct = async (req, res) => {
 }
 
 
+
+
+
+
+
+
+
+
+const saveImage = async (req, res) => {
+  try {
+    const file = req.file;
+    if (!file) {
+      return res.status(400).json({ success: false, message: "No image file provided" });
+    }
+
+    // Generate unique filename
+    const filename = Date.now() + '-' + file.originalname.replace(/\s/g, "");
+    const filepath = path.join(__dirname, "../../public/uploads/product-images", filename);
+
+    // Resize & convert to WebP
+    await sharp(file.buffer)
+      .resize(800, 800, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(filepath);
+
+    return res.status(200).json({ success: true, message: "Image saved successfully", filename });
+  } catch (error) {
+    console.error("Error saving image:", error);
+    return res.status(500).json({ success: false, message: "Error saving image" });
+  }
+};
+
+
+const addProducts = async (req, res) => {
+  try {
+    const { productName, shortDescription, nutritionalInfo, weightSize, regularPrice, salePrice, stock, organic, expirationDate, importedLocal, freshFrozen, category } = req.body;
+
+    // Check if product already exists
+    const productExists = await Product.findOne({ productName });
+    if (productExists) {
+      return res.status(400).json({ success: false, message: "Product already exists, try another name" });
+    }
+
+    // Ensure upload directory exists
+    const uploadDir = path.join(__dirname, "../../public/uploads/product-images");
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+
+    // Process images - handle both cropped images and regular file uploads
+    const imageFilenames = [];
+
+    // Process cropped images first
+    for (let i = 1; i <= 4; i++) {
+      const croppedImageData = req.body[`croppedImage${i}`];
+
+      if (croppedImageData && croppedImageData.startsWith('data:image')) {
+        // Extract base64 data from the data URL
+        const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
+        const imageBuffer = Buffer.from(base64Data, 'base64');
+
+        // Generate filename
+        const filename = Date.now() + "-" + `cropped-image-${i}` + ".webp";
+        const filepath = path.join(uploadDir, filename);
+
+        // Save the cropped image
+        await sharp(imageBuffer)
+          .webp({ quality: 80 })
+          .toFile(filepath);
+
+        imageFilenames.push(`uploads/product-images/${filename}`);
+      } else if (req.files && req.files[`image${i}`]) {
+        // Fallback to original file handling if no cropped data
+        const file = req.files[`image${i}`][0];
+        const filename = Date.now() + "-" + file.originalname.replace(/\s/g, "") + ".webp";
+        const filepath = path.join(uploadDir, filename);
+
+        await sharp(file.buffer)
+          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toFile(filepath);
+
+        imageFilenames.push(`uploads/product-images/${filename}`);
+      }
+    }
+
+    // Check if we have all required images
+    if (imageFilenames.length < 4) {
+      return res.status(400).json({ success: false, message: "Please upload all 4 product images" });
+    }
+
+    // Find category by name (ensure it exists)
+    const foundCategory = await Category.findOne({ name: category });
+    if (!foundCategory) {
+      return res.status(400).json({ success: false, message: "Category not found" });
+    }
+
+    // Create and save new product
+    const newProduct = new Product({
+      productName,
+      shortDescription,
+      nutritionalInfo,
+      weightSize,
+      regularPrice,
+      salePrice: salePrice || regularPrice, // If sale price is not provided, use regular price
+      stock,
+      organic,
+      expirationDate,
+      importedLocal,
+      freshFrozen,
+      category: foundCategory._id,
+      productImages: imageFilenames, // Array of image filenames
+      status: 'Available',
+
+    });
+    await newProduct.save();
+    return res.status(200).json({ success: true, message: "Product added successfully" });
+  } catch (error) {
+    console.error("Error saving product:", error);
+    return res.status(500).json({ success: false, message: "Error saving product" });
+  }
+};
+
 module.exports = {
   getProductAddPage,
   saveImage,
@@ -483,4 +632,3 @@ module.exports = {
 
 
 }
-

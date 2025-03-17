@@ -1,9 +1,12 @@
 <!DOCTYPE HTML>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <title>Froots Peedika</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="shortcut icon" type="image/x-icon" href="/admin-assets/img/favicon.ico">
     <link href="/admin-assets/css/main.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.16.6/dist/sweetalert2.min.css">
@@ -24,11 +27,11 @@
         }
 
         .navbar {
-            background-color: var(--primary-color);
+            background-color: #3498db;
         }
 
         .navbar-aside {
-            background-color: var(--secondary-color);
+            background-color: #2c3e50;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
 
@@ -81,6 +84,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="screen-overlay"></div>
     <aside class="navbar-aside" id="offcanvas_aside">
@@ -89,32 +93,33 @@
                 <!-- <img src="assets/img/frootspeedika.png" class="logo" alt="Froots Peedika"> -->
             </a>
             <div>
-                <button class="btn btn-icon btn-aside-minimize"> 
+                <button class="btn btn-icon btn-aside-minimize">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
         </div>
         <nav>
             <ul class="menu-aside">
-                <% const menuItems = [
-                    { link: '/admin', icon: 'fas fa-home', text: 'Dashboard' },
-                    { link: '/admin/users', icon: 'fas fa-users', text: 'Customers' },
-                    { link: '/admin/category', icon: 'fas fa-list', text: 'Category' },
-                    { link: '/admin/addProducts', icon: 'fas fa-plus-square', text: 'Add product' },
-                    { link: '/admin/products', icon: 'fas fa-box', text: 'Products' },
-                    { link: '/admin/coupon', icon: 'fas fa-ticket-alt', text: 'Coupon' },
-                    { link: '/admin/banner', icon: 'fas fa-image', text: 'Banner' },
-                    { link: '/admin/orderList', icon: 'fas fa-shopping-cart', text: 'Orders' }
-                ]; %>
-                
-                <% menuItems.forEach(item => { %>
-                    <li class="menu-item">
-                        <a class="menu-link" href="<%= item.link %>">
-                            <i class="icon <%= item.icon %>"></i>
-                            <span class="text"><%= item.text %></span>
-                        </a>
-                    </li>
-                <% }); %>
+                <% const menuItems=[ { link: '/admin' , icon: 'fas fa-home' , text: 'Dashboard' }, {
+                    link: '/admin/users' , icon: 'fas fa-users' , text: 'Customers' }, { link: '/admin/category' ,
+                    icon: 'fas fa-list' , text: 'Category' }, { link: '/admin/addProducts' , icon: 'fas fa-plus-square'
+                    , text: 'Add product' }, { link: '/admin/products' , icon: 'fas fa-box' , text: 'Products' }, {
+                    link: '/admin/coupon' , icon: 'fas fa-ticket-alt' , text: 'Coupon' }, { link: '/admin/transactions'
+                    , icon: 'fa-solid fa-wallet' , text: 'transactions' }, { link: '/admin//salesReport' ,
+                    icon: 'fas fa-image' , text: 'sales' }, { link: '/admin/orders' , icon: 'fas fa-shopping-cart' ,
+                    text: 'Orders' } <!-- { link: '/admin/sales' , icon: 'fas fa-image' , text: 'Sales Report' }, -->
+                    ]; %>
+
+                    <% menuItems.forEach(item=> { %>
+                        <li class="menu-item">
+                            <a class="menu-link" href="<%= item.link %>">
+                                <i class="icon <%= item.icon %>"></i>
+                                <span class="text">
+                                    <%= item.text %>
+                                </span>
+                            </a>
+                        </li>
+                        <% }); %>
             </ul>
         </nav>
     </aside>
@@ -124,19 +129,21 @@
                 <!-- Add search functionality if needed -->
             </div>
             <div class="col-nav">
-                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside"> 
+                <button class="btn btn-icon btn-mobile me-auto" data-trigger="#offcanvas_aside">
                     <i class="fas fa-bars"></i>
                 </button>
                 <ul class="nav">
                     <li class="dropdown nav-item">
-                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount" aria-expanded="false"> 
+                        <a class="dropdown-toggle" data-bs-toggle="dropdown" href="#" id="dropdownAccount"
+                            aria-expanded="false">
                             <!-- <img class="img-xs rounded-circle" src="assets\img\frootspeedika.png" alt="User"> -->
-                            <i class="fa-solid fa-user"></i>                        </a>
+                            <i class="fa-solid fa-user"></i> </a>
                         <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownAccount">
                             <a class="dropdown-item text-secondary" href="/admin/profile">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
-                                  </svg> Profile
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="bi bi-person-fill" viewBox="0 0 16 16">
+                                    <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6" />
+                                </svg> Profile
                             </a>
                             <a class="dropdown-item text-danger" href="#" onclick="confirmAdminLogout(event)">
                                 <i class="fas fa-sign-out-alt"></i> Logout
@@ -148,21 +155,21 @@
         </header>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  function confirmAdminLogout(event) {
-    event.preventDefault();
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You will be logged out of the admin panel!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, Logout!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = "/admin/logout";
-      }
-    });
-  }
-</script>
+        <script>
+            function confirmAdminLogout(event) {
+                event.preventDefault();
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You will be logged out of the admin panel!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "Yes, Logout!",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/admin/logout";
+                    }
+                });
+            }
+        </script>

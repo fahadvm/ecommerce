@@ -33,7 +33,7 @@
 						</div>
 						<div class="content">
 							<h3>Free Shipping</h3>
-							<p>When order over $75</p>
+							<p>When order over ₹100</p>
 						</div>
 					</div>
 				</div>
@@ -87,7 +87,11 @@
 								</a>
 							</div>
 							<h3><%= product.productName %></h3>
-							<p class="product-price"><span>Per Kg</span> <%= product.salePrice %>$ </p>
+							<p class="product-price">
+								<span>
+									<%= product.category.name === 'juice' ? 'Per Ltr' : 'Per Kg' %>
+								</span>
+								₹ <%= product.salePrice %> </p>
 							<a href="/productDetails?id=<%=product._id.toString()%>" class="cart-btn">
 								<i class="fas fa-shopping-cart"></i> view details</details>
 							</a>

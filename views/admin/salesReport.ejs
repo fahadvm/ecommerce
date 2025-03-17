@@ -1,0 +1,384 @@
+<%- include('../partials/admin/header') %>
+
+  <style>
+    .sales-report-container {
+      max-width: 1200px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: #1a1a1a;
+      /* Dark theme background */
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      color: #e0e0e0;
+      /* Light text for dark theme */
+    }
+
+    .sales-report-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .sales-report-header h1 {
+      font-size: 2.5rem;
+      color: #3498db;
+      /* FROOTS-PEEDIKA blue */
+      font-weight: 700;
+    }
+
+    .filter-section {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-section select,
+    .filter-section input {
+      padding: 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(52, 152, 219, 0.3);
+      background: #333;
+      color: #e0e0e0;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .filter-section input:focus,
+    .filter-section select:focus {
+      border-color: #3498db;
+      outline: none;
+    }
+
+    .filter-section button {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .filter-section button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 152, 253, 0.3);
+    }
+
+    .report-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 2rem;
+    }
+
+    .report-table th,
+    .report-table td {
+      padding: 1rem;
+      border: 1px solid rgba(52, 152, 219, 0.2);
+      text-align: left;
+    }
+
+    .report-table th {
+      background: #3498db;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .report-table td {
+      background: #ffffff;
+    }
+
+    .report-summary {
+      background: #2c2c2c;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      border: 1px solid rgba(52, 152, 219, 0.2);
+    }
+
+    .report-summary p {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+    }
+
+    .download-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .btn-download {
+      background: linear-gradient(135deg, #3498db, #2980b9);
+      color: #fff;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-download:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .filter-section {
+        flex-direction: column;
+      }
+
+      .report-table th,
+      .report-table td {
+        padding: 0.5rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+
+  <div class="sales-report-container">
+    <div class="sales-report-header">
+      <h1>Sales Report</h1>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <select id="dateRange" onchange="toggleCustomDate()">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="yearly">Yearly</option>
+        <option value="custom">Custom Date Range</option>
+      </select>
+      <input type="date" id="startDate" style="display: none;" />
+      <input type="date" id="endDate" style="display: none;" />
+      <button onclick="generateReport()">Generate Report</button>
+    </div>
+
+    <!-- Report Table -->
+    <table class="report-table" id="salesReportTable" style="display: none;">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Date</th>
+          
+          <th>Total Price</th>
+          <th>Discount</th>
+          <th>Final Amount</th>
+          <th>Coupon Code</th>
+        </tr>
+      </thead>
+      <tbody id="reportTableBody"></tbody>
+    </table>
+
+    <!-- Report Summary -->
+    <div class="report-summary" id="reportSummary" style="display: none;">
+      <p><strong>Overall Sales Count:</strong> <span id="salesCount">0</span></p>
+      <p><strong>Overall Order Amount:</strong> Rs. <span id="orderAmount">0.00</span></p>
+      <p><strong>Overall Discount:</strong> Rs. <span id="discountAmount">0.00</span></p>
+    </div>
+
+    <!-- Download Buttons -->
+    <div class="download-buttons" id="downloadButtons" style="display: none;">
+      <button class="btn-download" onclick="downloadPDF()">Download PDF</button>
+      <button class="btn-download" onclick="downloadExcel()">Download Excel</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+  <script>
+    function toggleCustomDate() {
+      const dateRange = document.getElementById("dateRange").value;
+      const startDate = document.getElementById("startDate");
+      const endDate = document.getElementById("endDate");
+      if (dateRange === "custom") {
+        startDate.style.display = "inline-block";
+        endDate.style.display = "inline-block";
+      } else {
+        startDate.style.display = "none";
+        endDate.style.display = "none";
+      }
+    }
+
+    async function generateReport() {
+      const dateRange = document.getElementById("dateRange").value;
+      let startDate, endDate;
+
+      const today = new Date();
+      if (dateRange === "daily") {
+        startDate = new Date(today);
+        startDate.setDate(startDate.getDate() -1);
+        startDate.setHours(23, 59, 0, 0); 
+
+
+        endDate = new Date(today);
+        endDate.setDate(endDate.getDate() + 1);
+      } else if (dateRange === "weekly") {
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() - 6);
+        endDate = new Date(today);
+      } else if (dateRange === "yearly") {
+        startDate = new Date(today.getFullYear(), 0, 1);
+        endDate = new Date(today);
+      } else {
+        startDate = new Date(document.getElementById("startDate").value);
+        endDate = new Date(document.getElementById("endDate").value);
+        if (!startDate || !endDate || startDate > endDate) {
+          Swal.fire('Error', "Please select a valid date range.", 'error');
+          return;
+        }
+      }
+
+      try {
+        const response = await fetch("/admin/salesReport", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+          }),
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          displayReport(data.orders, data.summary);
+        } else {
+          Swal.fire("Error", data.message || "Failed to generate report.", 'error');
+        }
+      } catch (error) {
+        console.error("Error generating report:", error);
+        Swal.fire("Error", "An error occurred while generating the report.", 'error');
+      }
+    }
+
+    function displayReport(orders, summary) {
+      const tableBody = document.getElementById("reportTableBody");
+      tableBody.innerHTML = "";
+
+      // Populate table
+      orders.forEach(order => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+                <td>${order.orderId.slice(-12)}</td>
+                <td>${new Date(order.createdAt).toLocaleDateString()}</td>
+                <td>Rs. ${order.totalPrice.toFixed(2)}</td>
+                <td>Rs. ${order.discount.toFixed(2)}</td>
+                <td>Rs. ${order.finalAmount.toFixed(2)}</td>
+                <td>${order.couponCode || "N/A"}</td>
+            `;
+        tableBody.appendChild(row);
+      });
+
+      // Populate summary
+      document.getElementById("salesCount").textContent = summary.salesCount;
+      document.getElementById("orderAmount").textContent = summary.orderAmount.toFixed(2);
+      document.getElementById("discountAmount").textContent = summary.discountAmount.toFixed(2);
+
+      // Show table, summary, and download buttons
+      document.getElementById("salesReportTable").style.display = "table";
+      document.getElementById("reportSummary").style.display = "block";
+      document.getElementById("downloadButtons").style.display = "flex";
+    }
+
+    function downloadPDF() {
+      if (!window.jspdf) {
+        console.error("jsPDF is not loaded");
+        alert("Failed to generate PDF: jsPDF library not loaded.");
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      // Header
+      doc.setFontSize(20);
+      doc.setTextColor(52, 152, 219);
+      doc.setFont("helvetica", "bold");
+      doc.text("FROOTS-PEEDIKA - Sales Report", 20, 20);
+
+      doc.setLineWidth(0.5);
+      doc.setDrawColor(52, 152, 219);
+      doc.line(20, 25, 190, 25);
+
+      // Table
+      doc.autoTable({
+        startY: 30,
+        head: [['Order ID', 'Date', 'Total Price', 'Discount', 'Final Amount', 'Coupon']],
+        body: Array.from(document.getElementById("reportTableBody").children).map(row => {
+          return Array.from(row.children).map(cell => cell.textContent);
+        }),
+        styles: { fontSize: 10, cellPadding: 2 },
+        headStyles: { fillColor: [52, 152, 219], textColor: 255 },
+        margin: { left: 20, right: 20 },
+      });
+
+      // Summary
+      const finalY = doc.lastAutoTable.finalY || 30;
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont("helvetica", "bold");
+      doc.text("Summary", 20, finalY + 15);
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text(`Overall Sales Count: ${document.getElementById("salesCount").textContent}`, 20, finalY + 25);
+      doc.text(`Overall Order Amount: Rs. ${document.getElementById("orderAmount").textContent}`, 20, finalY + 35);
+      doc.text(`Overall Discount: Rs. ${document.getElementById("discountAmount").textContent}`, 20, finalY + 45);
+
+      // Footer
+      doc.setFontSize(10);
+      doc.setTextColor(150);
+      doc.setFont("helvetica", "italic");
+      doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 270);
+      doc.text("FROOTS-PEEDIKA", 190, 270, { align: "right" });
+
+      doc.save("Sales_Report.pdf");
+    }
+
+    function downloadExcel() {
+  const table = document.getElementById("salesReportTable");
+  const wb = XLSX.utils.book_new();
+
+  // Convert table data to a sheet
+  const tableData = XLSX.utils.table_to_sheet(table);
+
+  // Define column widths
+  tableData["!cols"] = [
+    { wch: 18 }, // Date column 
+    { wch: 30 }, // Order ID column
+    { wch: 15 }, // Amount column
+    { wch: 15 }, // Discount column
+    { wch: 15 }  // Coupon column
+  ];
+
+  // Summary Data
+  const summaryData = [
+    ["Summary", ""],
+    ["Overall Sales Count", document.getElementById("salesCount").textContent],
+    ["Overall Order Amount", `Rs. ${document.getElementById("orderAmount").textContent}`],
+    ["Overall Discount", `Rs. ${document.getElementById("discountAmount").textContent}`]
+  ];
+  const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+
+  // Set column widths for summary
+  summarySheet["!cols"] = [
+    { wch: 25 }, // Wider column for labels
+    { wch: 20 }  // Values
+  ];
+
+  // Append sheets to the workbook
+  XLSX.utils.book_append_sheet(wb, tableData, "Sales Report");
+  XLSX.utils.book_append_sheet(wb, summarySheet, "Summary");
+
+  // Download Excel file
+  XLSX.writeFile(wb, "Sales_Report.xlsx");
+}
+
+  </script>
+
+  <%- include('../partials/admin/footer') %>

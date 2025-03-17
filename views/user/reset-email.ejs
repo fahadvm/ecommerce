@@ -1,0 +1,137 @@
+<style>
+    /* General Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    /* Card Styling */
+    .card-login {
+        background: #fff;
+        border-radius: 10px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        color: #333;
+    }
+
+    /* Input Fields */
+    .form-control {
+        border: 1px solid #ced4da;
+        padding: 10px;
+        border-radius: 5px;
+        width: 100%;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        outline: none;
+    }
+
+    /* Error Messages */
+    .text-danger {
+        font-size: 0.875rem;
+        margin-top: 5px;
+    }
+
+    /* Button */
+    .btn-primary {
+        background-color: #007bff;
+        border: none;
+        padding: 10px;
+        font-size: 1rem;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+
+    /* Alert Message */
+    #alertMessage {
+        font-size: 0.9rem;
+        padding: 10px;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 576px) {
+        .card-login {
+            width: 90%;
+        }
+    }
+</style>
+
+<section class="content-main mt-80 mb-80">
+    <div class="card mx-auto card-login" style="max-width: 400px;">
+        <div class="card-body">
+            <h4 class="card-title mb-4 text-center">Change Email</h4>
+            <form method="post" action="/reset-email" onsubmit="return validateForm()">
+                <div class="mb-3 position-relative">
+                    <input class="form-control" name="newEmail1" id="newEmail1" placeholder="Enter new email" type="email" required>
+                    <div id="newEmail1Error" class="text-danger position-absolute" style="bottom: -20px; left: 0;"></div>
+                </div>
+                <div class="mb-3 position-relative">
+                    <input class="form-control" name="newEmail2" id="newEmail2" placeholder="Re-enter new email" type="email" required>
+                    <div id="newEmail2Error" class="text-danger position-absolute" style="bottom: -20px; left: 0;"></div>
+                </div>
+                <div class="mb-4">
+                    <button type="submit" class="btn btn-primary w-100">Change Email</button>
+                </div>
+                <% if (locals.message && message.length > 0) { %>
+                    <div id="alertMessage" class="alert alert-danger text-center">
+                        <%= message %>
+                    </div>
+                <% } %>
+            </form>
+            <p class="text-center mt-4">Don't have an account? <a href="/signup">Sign up</a></p>
+        </div>
+    </div>
+</section>
+
+<script>
+    function validateForm() {
+        let valid = true;
+        const newEmail1 = document.getElementById('newEmail1');
+        const newEmail2 = document.getElementById('newEmail2');
+        const newEmail1Error = document.getElementById('newEmail1Error');
+        const newEmail2Error = document.getElementById('newEmail2Error');
+
+        newEmail1Error.textContent = '';
+        newEmail2Error.textContent = '';
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        if (!newEmail1.value.trim()) {
+            newEmail1Error.textContent = 'Email cannot be empty.';
+            valid = false;
+        } else if (!emailPattern.test(newEmail1.value)) {
+            newEmail1Error.textContent = 'Enter a valid email address.';
+            valid = false;
+        }
+
+        if (!newEmail2.value.trim()) {
+            newEmail2Error.textContent = 'Please re-enter your email.';
+            valid = false;
+        } else if (newEmail2.value !== newEmail1.value) {
+            newEmail2Error.textContent = 'Emails do not match.';
+            valid = false;
+        }
+
+        return valid;
+    }
+</script>

@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 const {Schema} = mongoose
 
 const couponSchema = new Schema({
-  name:{
+  couponCode:{
     type:String,
     required:true,
     unique:true
@@ -28,7 +28,7 @@ const couponSchema = new Schema({
     type:Boolean,
     default:false
   },
-  userId:[{
+  users:[{
     type:Schema.Types.ObjectId,
     ref:"User"
   }]

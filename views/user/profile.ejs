@@ -1,0 +1,470 @@
+<%- include("../../views/partials/user/header") %>
+
+    <title>User Profile - Frootspeedika</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tilt+Neon&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <style>
+        :root {
+            --dark-bg: #000000;
+            --accent-orange: #ff8c42;
+            --secondary-bg: #0A2E36;
+            --text-primary: #ffffff;
+            --text-secondary: #cccccc;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            height: 100vh;
+            background: linear-gradient(180deg, var(--secondary-bg), #05252b);
+            padding: 2rem 1.5rem;
+            border-right: 1px solid rgba(255, 140, 66, 0.2);
+            position: sticky;
+            top: 0;
+        }
+
+        .sidebar h3 {
+            color: var(--accent-orange);
+            font-family: 'Tilt Neon', cursive;
+            font-size: 1.75rem;
+        }
+
+        .sidebar a {
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar .active {
+            background: rgba(255, 140, 66, 0.15);
+            transform: translateX(5px);
+            box-shadow: var(--shadow);
+        }
+
+        /* Profile Container */
+        .profile-container {
+            padding: 3rem;
+            background: var(--secondary-bg);
+            border-radius: 15px;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            box-shadow: var(--shadow);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* User Info */
+        .user-info-card {
+            background: var(--dark-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            border: 2px solid var(--accent-orange);
+            box-shadow: var(--shadow);
+            transition: transform 0.3s ease;
+        }
+
+        .user-info-card:hover {
+            transform: scale(1.02);
+        }
+
+        .user-info-card h2 {
+            color: var(--accent-orange);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Tilt Neon', cursive;
+        }
+
+        .user-info-card p {
+            margin: 0.75rem 0;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn-orange {
+            background: var(--accent-orange);
+            color: var(--dark-bg);
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 140, 66, 0.4);
+        }
+
+        .btn-orange:hover {
+            background: #ff9f5e;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.6);
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: var(--dark-bg);
+            border: 2px solid var(--accent-orange);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stats-card:hover {
+            transform: scale(1.05);
+        }
+
+        .stats-card h5 {
+            font-size: 2rem;
+            color: var(--accent-orange);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Orders */
+        .order-card {
+            background: var(--dark-bg);
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .order-card:hover {
+            box-shadow: 0 6px 20px rgba(255, 140, 66, 0.3);
+        }
+
+        /* Refer Section */
+        .refer-section {
+            background: linear-gradient(135deg, var(--dark-bg), #1a1a1a);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 2px solid var(--accent-orange);
+            text-align: center;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .refer-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 140, 66, 0.1), transparent);
+            animation: glow 4s infinite alternate;
+        }
+
+        @keyframes glow {
+            0% {
+                transform: scale(1);
+            }
+
+            100% {
+                transform: scale(1.2);
+            }
+        }
+
+        .refer-section h1 {
+            color: var(--accent-orange);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-family: 'Tilt Neon', cursive;
+            position: relative;
+            z-index: 1;
+        }
+
+        .refer-code-box {
+            display: inline-flex;
+            align-items: center;
+            background: rgba(255, 140, 66, 0.15);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            border: 1px dashed var(--accent-orange);
+            position: relative;
+            z-index: 1;
+        }
+
+        .refer-section button {
+            background: var(--accent-orange);
+            color: var(--dark-bg);
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(255, 140, 66, 0.4);
+            position: relative;
+            z-index: 1;
+        }
+
+        .refer-section button:hover {
+            background: #ff9f5e;
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 140, 66, 0.6);
+        }
+
+        p {
+            font-family: "Open Sans", sans-serif;
+            font-weight: 400;
+            font-size: 1rem;
+            letter-spacing: 0.1px;
+            line-height: 1.8;
+            color: #d8d8d8;
+            margin: 0 0 1.25rem 0;
+        }
+    </style>
+
+    <body>
+        <!-- Breadcrumb Section -->
+        <div class="breadcrumb-section breadcrumb-bg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2 text-center">
+                        <div class="breadcrumb-text">
+                            <p>Fresh and Organic</p>
+                            <h1>Profile</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container-fluid">
+            <div class="row">
+                <!-- Sidebar -->
+                <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                    <h3 class="mb-4">Frootspeedika</h3>
+                    <a href="/userProfile" class="active"><i class="fas fa-user"></i> Dashboard</a>
+                    <a href="/orders"><i class="fas fa-history"></i> Order History</a>
+                    <a href="/address"><i class="fas fa-map-marker-alt"></i> Address Book</a>
+                    <a href="/editProfile"><i class="fas fa-cog"></i> Account Settings</a>
+                    <a href="/wallet"><i class="fa-solid fa-wallet"></i> Wallet</a>
+                    <a href="/coupons"><i class="fa-duotone fa-solid fa-ticket"></i> Coupons</a>
+                    <a href="#" onclick="confirmAdminLogout(event)"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </nav>
+
+                <!-- Main Content -->
+                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4" style="background: #cccccc;">
+                    <div class="profile-container">
+                        <!-- User Info -->
+                        <div class="d-flex align-items-center mb-5">
+                            <div class="user-info-card flex-grow-1">
+                                <div class="d-flex align-items-center">
+                                    <div class="me-4">
+                                        <img src="<%= user.image && user.image.length ? user.image[0] : 'assets/img/default dp.jpg' %>"
+                                            class="rounded-circle" width="100" height="100" alt="Profile">
+                                    </div>
+                                    <div>
+                                        <h2>User Details</h2>
+                                        <p><i class="fas fa-user"></i> Name: <%= user.username %>
+                                        </p>
+                                        <p><i class="fas fa-envelope"></i> Email: <%= user.email %>
+                                        </p>
+                                        <p><i class="fas fa-phone"></i> Phone: <%= user.phone %>
+                                        </p>
+                                        <button class="btn-orange mt-3"
+                                            onclick="window.location.href='/editProfile'">Edit Profile</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-6">
+                                <div class="stats-card">
+                                    <h5>
+                                        <%= totalOrders %>
+                                    </h5>
+                                    <p class="mb-0">Total Orders</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="stats-card">
+                                    <h5>₹<%= totalSpending %>
+                                    </h5>
+                                    <p class="mb-0">Total Spending</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Orders -->
+                        <div class="mt-5">
+                            <h3 class="mb-4 text-xl font-semibold" style="color: var(--accent-orange);">Recent Orders
+                            </h3>
+                            <% if (orders.length < 1) { %>
+                                <div class="order-card">
+                                    <h3>No orders history</h3>
+                                </div>
+                                <% } %>
+                                    <% orders.forEach(order=> { %>
+                                        <div
+                                            class="order-card shadow-md rounded-lg p-4 mb-3 transition hover:shadow-lg">
+                                            <div class="flex justify-between items-center">
+                                                <div>
+                                                    <h5 class="text-lg font-medium mb-1">Order #<%= order.orderId %>
+                                                    </h5>
+                                                    <p class="text-gray-500 text-sm">
+                                                        <%= new Date(order.createdAt).toLocaleDateString() %>
+                                                    </p>
+                                                </div>
+                                                <div class="text-right">
+                                                    <span class="px-3 py-1 text-sm font-semibold rounded-full 
+                                            <%= order.status === 'delivered' 
+                                                ? 'bg-green-100 text-green-700' 
+                                                : order.status === 'returned' || order.status === 'cancelled' 
+                                                    ? 'bg-red-100 text-red-700' 
+                                                    : 'bg-yellow-100 text-yellow-700' %>">
+                                                        <%= order.status %>
+                                                    </span>
+                                                    <h4 class="mt-2 text-lg font-bold text-orange-500">₹<%= order.price
+                                                            %>
+                                                    </h4>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <% }); %>
+                        </div>
+
+                        
+                        <!-- Primary Address -->
+                        <div class="mt-5">
+                            <h3 class="mb-4 text-xl font-semibold" style="color: var(--accent-orange);">Primary Address
+                            </h3>
+                            <% if (addresses) { %>
+                                <% let address=addresses.address[0]; %>
+                                    <div class="order-card">
+                                        <h3>
+                                            <%= address.name %>
+                                        </h3>
+                                        <p>
+                                            <%= address.landMark %>
+                                        </p>
+                                        <p>
+                                            <%= address.city %>, <%= address.state %> - <%= address.pincode %>
+                                        </p>
+                                        <p>Phone: <%= address.phone %>
+                                        </p>
+                                        <p>Address Type: <%= address.addressType %>
+                                        </p>
+                                        <button class="btn-orange mt-3" onclick="window.location.href='/address'">Edit
+                                            Address</button>
+                                        </div>
+                                    <% } else { %>
+                                        <div class="order-card">
+                                            <h3>No address</h3>
+                                        </div>
+                                        <% } %>
+                        </div>
+                        <!-- Refer and Earn Section -->
+                        <div class="refer-section mt-5">
+                            <h1>"Invite Your Friends and Earn Rewards!"</h1>
+                            <div class="refer-code-box">
+                                <span id="referCode">
+                                    <%= user.referCode %>
+                                </span>
+                            </div>
+                            <button onclick="copyReferCode()" class="btn-orange">Copy Refer Code</button>
+                            <p style="color: #949c94; font-size: x-large;">"Share your code with your friends and earn ₹500 for every successful signup! "</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- SweetAlert2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            function confirmAdminLogout(event) {
+                event.preventDefault();
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You will be logged out!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, Logout"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = "/logout";
+                    }
+                });
+            }
+
+            function copyReferCode() {
+                const referCode = document.getElementById('referCode').innerText;
+                navigator.clipboard.writeText(referCode)
+                    .then(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Copied!',
+                            text: `Referral code "${referCode}" copied to clipboard!`,
+                            showConfirmButton: false,
+                            timer: 1500,
+                            background: '#1a1a1a',
+                            color: '#ffffff',
+                            customClass: {
+                                popup: 'border-orange'
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: 'Failed to copy the code!',
+                            background: '#1a1a1a',
+                            color: '#ffffff'
+                        });
+                    });
+            }
+        </script>
+        <%- include("../../views/partials/user/footer") %>
+    </body>
+
+    </html>

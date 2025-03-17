@@ -1,6 +1,8 @@
 const User = require("../../models/userSchema")
 const Product = require("../../models/productSchema")
 const Category = require("../../models/categorySchema");
+const Wallet = require('../../models/walletSchema')
+
 
 const nodemailer = require("nodemailer")
 const env = require('dotenv').config()
@@ -11,7 +13,7 @@ const bcrypt = require('bcrypt')
 
 const signup = async (req, res) => {
     try {
-        const { username, phone, email, password, cPassword } = req.body;
+        const { username, phone, email, password, cPassword, referCode } = req.body;
         console.log(username)
 
         // if (password !== cPassword) {
@@ -22,6 +24,26 @@ const signup = async (req, res) => {
         if (findUser) {
             return res.render("user/signup", { message: "User with this email already exists" });
         }
+
+        // if (referCode) {
+        //     const cheeckReferal = await User.findOne({ referCode: referCode })
+        //     console.log('cheeckReferal:', cheeckReferal)
+        //     if (!cheeckReferal) {
+        //         req.session.Emessage = 'Invalid Referal Code, Please try again'
+        //         return
+        //     }
+        //     const wallet = await Wallet.findOne({ userId: cheeckReferal._id })
+        //     wallet.balance += 500
+        //     wallet.transactions.push({
+        //         type: 'credit',
+        //         amount: 500,
+        //         description: 'Referal Code Credition',
+        //         date: new Date(),
+        //     })
+        //     await wallet.save()
+        // }
+
+
         const otp = generateOtp();
         const emailSent = await sendVerificationEmail(email, otp)
 
@@ -57,7 +79,10 @@ const loadsignup = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
+
         const findUser = await User.findOne({ isAdmin: 0, email: email });
+
+
 
         if (!findUser) {
             return res.render('user/login', { message: 'User not found' });
@@ -75,7 +100,7 @@ const login = async (req, res) => {
 
         req.session.user = findUser._id;
         console.log('in login session.user:', req.session.user)
-        return res.redirect('/');           
+        return res.redirect('/');
     } catch (error) {
         console.log('login error:', error);
         return res.render("user/login", { message: "Login failed. Please try again later" });
@@ -99,30 +124,23 @@ const loadHomepage = async (req, res) => {
     try {
         const user = req.session.user;
         console.log("User from session:", req.session.user);
-        const categories = await Category.find({isListed:true})
-        let productData = await Product.find({
-            isBlocked:false,
-            category:{$in:categories.map(category=>category._id)},
-            stock:{$gt:0},
-        })
-
-        productData.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt))
-        productData = productData.slice(0,3);
+        const categories = await Category.find({ isListed: true })
+        const productData = await Product.find({}).limit(3)
 
 
         if (user) {
             const userData = await User.findOne({ _id: user })
 
-            return res.render("user/home", { user: userData, products:productData})
+            return res.render("user/home", { user: userData, products: productData })
 
 
         } else {
-            return res.render("user/home", { user: null,products:productData,req:req})
+            return res.render("user/home", { user: null, products: productData, req: req })
         }
     } catch (error) {
-        console.log("not found")
-        res.status(404).send("not found")
-    }
+        console.log("not found",error)
+        res.status(404).send("not found",error)
+    } 
 }
 
 const pageNotFound = async (req, res) => {
@@ -247,65 +265,73 @@ async function sendVerificationEmail(email, otp) {
 
 const loadShoppingPage = async (req, res) => {
     try {
+        const isAjax = req.get('X-Requested-With') === 'XMLHttpRequest';
         const user = req.session.user;
-        const userData = await User.findOne({ _id: user });
+        const userData = await User.findById(user);
 
         const { search, category, sort, minPrice, maxPrice, page = 1 } = req.query;
         const perPage = 9;
-        
-        console.log(req.query); // Debugging query parameters
-        const categories = await Category.find({isListed:true})
 
-        let filter = { isBlocked: false, stock: { $gt: 0 } ,category:{$in:categories.map(category=>category._id)},};
+        // Base filter
+        const filter = {
+            isBlocked: false,
+            stock: { $gt: 0 },
+            category: { $in: (await Category.find({ isListed: true })).map(c => c._id) }
+        };
 
-        // Search query
-        if (search) {
-            filter.productName = { $regex: search, $options: "i" };
-        }
-
-        // Category filter
-        if (category) {
-            filter.category = category;
-        }
-
-        // Price filter
+        // Apply filters
+        if (search) filter.productName = { $regex: search, $options: "i" };
+        if (category) filter.category = category;
         if (minPrice && maxPrice) {
             filter.salePrice = { $gte: Number(minPrice), $lte: Number(maxPrice) };
         }
 
-        // Sorting Logic
-        let sortOption = {};
-        if (sort === "lowToHigh") sortOption.salePrice = 1;
-        else if (sort === "highToLow") sortOption.salePrice = -1;
-        else if (sort === "aToZ") sortOption.productName = 1;
-        else if (sort === "zToA") sortOption.productName = -1;
-        else if (sort === "newArrivals") sortOption.createdAt = -1;
+        // Sorting
+        const sortOptions = {
+            lowToHigh: { salePrice: 1 },
+            highToLow: { salePrice: -1 },
+            aToZ: { productName: 1 },
+            zToA: { productName: -1 },
+            newArrivals: { createdAt: -1 }
+        };
 
-        console.log(filter); // Debugging applied filters
-
+        // Pagination
         const totalProducts = await Product.countDocuments(filter);
-
         const totalPages = Math.ceil(totalProducts / perPage);
+        const currentPage = Math.max(1, Math.min(page, totalPages));
 
+        // Get products
         const products = await Product.find(filter)
-            .sort(sortOption)
-            .skip((parseInt(page) - 1) * perPage)
-            .limit(perPage);
+            .sort(sortOptions[sort] || { createdAt: -1 })
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage)
+            .populate('category');
 
+        // Response handling
+        if (isAjax) {
+            res.json({
+                products,
+                totalPages,
+                currentPage,
+                category
+            });
+        } else {
+            res.render("user/shop", {
+                products,
+                categories: await Category.find({ isListed: true }),
+                totalPages,
+                currentPage,
+                search,
+                sort,
+                category,
+                currentCategory: category || "",
+                user: userData
+            });
+        }
 
-        res.render("user/shop", { 
-            products, 
-            categories, 
-            totalPages, 
-            currentPage: parseInt(page), 
-            search, 
-            sort, 
-            category ,
-            user :userData
-        });
     } catch (error) {
         console.error("Error loading shop page:", error);
-        res.status(500).send("Error loading shop page");
+        res.status(500).send(isAjax ? { error: true } : "Error loading shop page");
     }
 };
 

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Success</title>
+    
+    <style>
+        .success-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--dark-bg);
+            padding: 2rem;
+        }
+
+        .success-box {
+            background: var(--secondary-bg);
+            border: 1px solid rgba(196, 162, 119, 0.3);
+            padding: 3rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 800px;
+            width: 100%;
+            color: var(--text-primary);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(196, 162, 119, 0.1);
+            border: 2px solid var(--accent-gold);
+            animation: checkmark 1s ease;
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--accent-gold);
+        }
+
+        .success-title {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .success-text {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .order-card {
+            background: var(--dark-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(196, 162, 119, 0.1);
+        }
+
+        .order-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            text-align: left;
+        }
+
+        .order-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .highlight {
+            color: var(--accent-gold);
+            font-weight: 600;
+        }
+
+        .shop-btn {
+            background: var(--accent-gold);
+            color: var(--dark-bg);
+            padding: 1rem 2.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .shop-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(196, 162, 119, 0.3);
+        }
+
+        @keyframes checkmark {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .success-box {
+                padding: 2rem;
+            }
+
+            .order-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .success-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="success-container">
+    <div class="success-box">
+        <div class="success-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+
+        <h2 class="success-title">Order Confirmed!</h2>
+        <p class="success-text">Thank you for your purchase. Your order is being processed.</p>
+
+        <% order.items.forEach(item => { %>
+          <div class="order-card">
+              <div class="order-grid">
+                  <div class="order-detail">
+                      <span class="detail-label">Order ID</span>
+                      <span class="detail-value highlight"><%= order.orderId %></span>
+                  </div>
+                  <div class="order-detail">
+                      <span class="detail-label">Product</span>
+                      <span class="detail-value"><%= item.name %></span>
+                  </div>
+                  <div class="order-detail">
+                      <span class="detail-label">Quantity</span>
+                      <span class="detail-value"><%= item.quantity %></span>
+                  </div>
+                  <div class="order-detail">
+                    <span class="detail-label"> Price</span>
+                    <span class="detail-value">₹<%= (item.price - (item.discount || 0)).toFixed(2) %> </span>
+                  </div>
+                  <div class="order-detail">
+                      <span class="detail-label">Total Price</span>
+                      <span class="detail-value">₹<%= (item.price - (item.discount || 0)).toFixed(2) * item.quantity %> </span>
+                    </div>
+                  <div class="order-detail">
+                      <span class="detail-label">Discount</span>
+                      <span class="detail-value">₹<%= item.discount.toFixed(2) %></span>
+                  </div>
+                  <div class="order-detail">
+                      <span class="detail-label">Final Amount</span>
+                      <span class="detail-value highlight">₹<%= order.total.toFixed(2) %></span>
+                  </div>
+                  <div class="order-detail">
+                      <span class="detail-label">Applied Discount</span>
+                      <span class="detail-value"><%= order.appliedDiscount || "None" %></span>
+                  </div>
+              </div>
+          </div>
+      <% }) %>
+      
+
+        <a href="/shop" class="shop-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+            </svg>
+            Continue Shopping
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

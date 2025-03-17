@@ -1,37 +1,38 @@
-<%- include("../../views/partials/admin/header") %>
 
-    <title>Add New Product</title>
+
+<%- include("../../views/partials/admin/header") %>
+<head>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <style>
         /* General Styling */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
         }
-
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2c3e50;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --info-color: #3498db;
-            --light-gray: #ecf0f1;
-        }
+      --primary-color: #1e90ff;
+      --secondary-color: #2d3436;
+      --success-color: #00b894;
+      --danger-color: #d63031;
+      --info-color: #0984e3;
+      --light-gray: #dfe6e9;
+      --background-color: #f5f6fa;
+      --white: #ffffff;
+      --shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      --transition: all 0.3s ease;
+    }
 
         .error-message {
-            color: var(--danger-color);
+            color: red;
             font-size: 0.875rem;
-            margin-top: 0.25rem;
         }
 
         /* Main Section Styling */
         .content-main {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
+            padding: 3rem 2rem;
         }
 
         .content-header {
@@ -41,15 +42,13 @@
         .content-title {
             font-size: 2rem;
             font-weight: bold;
-            color: var(--secondary-color);
         }
 
         /* Form Styling */
         .form-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            gap: 2rem;
         }
 
         .form-group {
@@ -58,39 +57,24 @@
 
         .form-group label {
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 1.1rem;
             margin-bottom: 0.5rem;
-            display: block;
-            color: var(--secondary-color);
         }
 
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
+        .form-group input, .form-group select, .form-group textarea {
             width: 100%;
             padding: 0.75rem;
             font-size: 1rem;
             border-radius: 8px;
             border: 1px solid #ddd;
-            background-color: #fff;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus,
-        .form-group textarea:focus {
-            border-color: var(--primary-color);
-            outline: none;
         }
 
         .form-group input[type="number"] {
             -moz-appearance: textfield;
         }
 
-        .form-group input[type="number"]::-webkit-inner-spin-button,
-        .form-group input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+        .form-group select {
+            cursor: pointer;
         }
 
         .form-actions {
@@ -100,18 +84,17 @@
         }
 
         .form-actions button {
-            background-color: var(--primary-color);
+            background-color: #007bff;
             color: white;
             padding: 0.75rem 1.5rem;
-            font-size: 1rem;
+            font-size: 1.125rem;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         .form-actions button:hover {
-            background-color: #2980b9;
+            background-color: #0056b3;
         }
 
         /* Image Preview Styling */
@@ -121,156 +104,224 @@
             border: 1px solid #ddd;
             margin-top: 10px;
             border-radius: 8px;
-            display: none;
         }
 
         .image-upload-container {
-            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
 
-        .image-upload-container h4 {
-            font-size: 1.25rem;
-            color: var(--secondary-color);
-            margin-bottom: 1rem;
+        .thumbnail {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .thumbnail img {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 50%;
+            margin-right: 10px;
         }
     </style>
+</head>
 
-<body>
-    <section class="content-main">
-        <div class="content-header">
-            <h2 class="content-title">Add New Product</h2>
+
+<section class="content-main">
+    <div class="content-header">
+        <h2 class="content-title">Add New Product</h2>
+    </div>
+    <form id="productForm" method="POST" action="/admin/addProducts" enctype="multipart/form-data">
+        <div class="form-container">
+            <!-- Product Name -->
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" name="productName" id="productName" placeholder="Enter product name" required>
+                <div id="productName-error" class="error-message"></div>
+            </div>
+
+            <!-- Short Description -->
+            <div class="form-group">
+                <label for="shortDescription">Short Description</label>
+                <textarea id="shortDescription" name="shortDescription" rows="4" placeholder="Enter product short description" required></textarea>
+                <div id="description-error" class="error-message"></div>
+            </div>
+
+            <!-- Nutritional Information -->
+            <div class="form-group">
+                <label for="nutritionalInfo">Nutritional Information</label>
+                <input type="text" name="nutritionalInfo" id="nutritionalInfo" placeholder="Enter nutritional information" required>
+                <div id="nutritionalInfo-error" class="error-message"></div>
+            </div>
+
+            <!-- Weight/Size -->
+            <div class="form-group">
+                <label for="weightSize">Weight/Size (kg per pack)</label>
+                <input type="number" name="weightSize" id="weightSize" placeholder="Enter weight or size in kg" step="0.01" min="0" required>
+                <div id="weightSize-error" class="error-message"></div>
+            </div>
+
+            <!-- Regular Price -->
+            <div class="form-group">
+                <label for="regularPrice">Regular Price</label>
+                <input type="number" name="regularPrice" id="regularPrice" step="0.01" placeholder="Enter regular price" min="0" required>
+                <div id="regularPrice-error" class="error-message"></div>
+            </div>
+
+            <!-- Sale Price -->
+            <div class="form-group">
+                <label for="salePrice">Sale Price</label>
+                <input type="number" name="salePrice" id="salePrice" step="0.01" placeholder="Enter sale price" min="0">
+                <div id="salePrice-error" class="error-message"></div>
+            </div>
+
+            <!-- Stock -->
+            <div class="form-group">
+                <label for="stock">Stock</label>
+                <input type="number" name="stock" id="stock" placeholder="Enter stock quantity" min="0" required>
+                <div id="stock-error" class="error-message"></div>
+            </div>
+
+            <!-- Organic -->
+            <div class="form-group">
+                <label for="organic">Organic</label>
+                <select name="organic" id="organic" required>
+                    <option value="">Select an option</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                    <option value="na">N/A</option>
+                </select>
+                <div id="organic-error" class="error-message"></div>
+            </div>
+
+            <!-- Expiration Date -->
+            <div class="form-group">
+                <label for="expirationDate">Expiration Date</label>
+                <input type="date" name="expirationDate" id="expirationDate">
+                <div id="expirationDate-error" class="error-message"></div>
+            </div>
+
+            <!-- Product Origin -->
+            <div class="form-group">
+                <label for="importedLocal">Product Origin</label>
+                <select name="importedLocal" id="importedLocal" required>
+                    <option value="">Select an option</option>
+                    <option value="imported">Imported</option>
+                    <option value="local">Local</option>
+                    <option value="na">N/A</option>
+                </select>
+                <div id="importedLocal-error" class="error-message"></div>
+            </div>
+
+            <!-- Product Condition -->
+            <div class="form-group">
+                <label for="freshFrozen">Product Condition</label>
+                <select name="freshFrozen" id="freshFrozen" required>
+                    <option value="">Select an option</option>
+                    <option value="fresh">Fresh</option>
+                    <option value="frozen">Frozen</option>
+                    <option value="na">N/A</option>
+                </select>
+                <div id="freshFrozen-error" class="error-message"></div>
+            </div>
+
+            <!-- Category -->
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select name="category" id="category" required>
+                    <option value="">Select an option</option>
+
+                    <% for (let i = 0; i < cat.length; i++) { %>
+                        <option value="<%= cat[i].name %>"><%= cat[i].name %></option>
+                    <% } %>
+                </select>
+                <div id="category-error" class="error-message"></div>
+            </div>
         </div>
-        <form id="productForm" method="POST" action="/admin/addProducts" enctype="multipart/form-data">
-            <div class="form-container">
-                <!-- Product Name -->
-                <div class="form-group">
-                    <label for="productName">Product Name</label>
-                    <input type="text" name="productName" id="productName" placeholder="Enter product name" required>
-                    <div id="productName-error" class="error-message"></div>
-                </div>
 
-                <!-- Short Description -->
-                <div class="form-group">
-                    <label for="shortDescription">Short Description</label>
-                    <textarea id="shortDescription" name="shortDescription" rows="4" placeholder="Enter product short description" required></textarea>
-                    <div id="description-error" class="error-message"></div>
-                </div>
 
-                <!-- Nutritional Information -->
+        <div class="image-upload-container">
+            <h4>Product Images</h4>
+            <% for (let i = 1; i <= 4; i++) { %>
                 <div class="form-group">
-                    <label for="nutritionalInfo">Nutritional Information</label>
-                    <input type="text" name="nutritionalInfo" id="nutritionalInfo" placeholder="Enter nutritional information" required>
-                    <div id="nutritionalInfo-error" class="error-message"></div>
-                </div>
-
-                <!-- Weight/Size -->
-                <div class="form-group">
-                    <label for="weightSize">Weight/Size (kg per pack)</label>
-                    <input type="number" name="weightSize" id="weightSize" placeholder="Enter weight or size in kg" step="0.01" min="0" required>
-                    <div id="weightSize-error" class="error-message"></div>
-                </div>
-
-                <!-- Regular Price -->
-                <div class="form-group">
-                    <label for="regularPrice">Regular Price</label>
-                    <input type="number" name="regularPrice" id="regularPrice" step="0.01" placeholder="Enter regular price" min="0" required>
-                    <div id="regularPrice-error" class="error-message"></div>
-                </div>
-
-                <!-- Sale Price -->
-                <div class="form-group">
-                    <label for="salePrice">Sale Price</label>
-                    <input type="number" name="salePrice" id="salePrice" step="0.01" placeholder="Enter sale price" min="0">
-                    <div id="salePrice-error" class="error-message"></div>
-                </div>
-
-                <!-- Stock -->
-                <div class="form-group">
-                    <label for="stock">Stock</label>
-                    <input type="number" name="stock" id="stock" placeholder="Enter stock quantity" min="0" required>
-                    <div id="stock-error" class="error-message"></div>
-                </div>
-
-                <!-- Organic -->
-                <div class="form-group">
-                    <label for="organic">Organic</label>
-                    <select name="organic" id="organic" required>
-                        <option value="">Select an option</option>
-                        <option value="yes">Yes</option>
-                        <option value="no">No</option>
-                        <option value="na">N/A</option>
-                    </select>
-                    <div id="organic-error" class="error-message"></div>
-                </div>
-
-                <!-- Expiration Date -->
-                <div class="form-group">
-                    <label for="expirationDate">Expiration Date</label>
-                    <input type="date" name="expirationDate" id="expirationDate">
-                    <div id="expirationDate-error" class="error-message"></div>
-                </div>
-
-                <!-- Product Origin -->
-                <div class="form-group">
-                    <label for="importedLocal">Product Origin</label>
-                    <select name="importedLocal" id="importedLocal" required>
-                        <option value="">Select an option</option>
-                        <option value="imported">Imported</option>
-                        <option value="local">Local</option>
-                        <option value="na">N/A</option>
-                    </select>
-                    <div id="importedLocal-error" class="error-message"></div>
-                </div>
-
-                <!-- Product Condition -->
-                <div class="form-group">
-                    <label for="freshFrozen">Product Condition</label>
-                    <select name="freshFrozen" id="freshFrozen" required>
-                        <option value="">Select an option</option>
-                        <option value="fresh">Fresh</option>
-                        <option value="frozen">Frozen</option>
-                        <option value="na">N/A</option>
-                    </select>
-                    <div id="freshFrozen-error" class="error-message"></div>
-                </div>
-
-                <!-- Category -->
-                <div class="form-group">
-                    <label for="category">Category</label>
-                    <select name="category" id="category" required>
-                        <% for (let i = 0; i < cat.length; i++) { %>
-                            <option value="<%= cat[i].name %>"><%= cat[i].name %></option>
-                        <% } %>
-                    </select>
-                    <div id="category-error" class="error-message"></div>
-                </div>
-            </div>
-
-            <!-- Image Upload Section -->
-            <div class="image-upload-container">
-                <h4>Product Images</h4>
-                <% for (let i = 1; i <= 4; i++) { %>
-                    <div class="form-group">
-                        <label for="image<%= i %>">Image <%= i %></label>
-                        <input type="file" name="image<%= i %>" id="image<%= i %>" class="form-control" accept="image/*" onchange="previewImage(event, '<%= i %>')">
+                    <label for="image<%= i %>">Image <%= i %></label>
+                    <input type="file" name="image<%= i %>" id="image<%= i %>" class="form-control" accept="image/*" onchange="previewImage(event, <%= i %>)">
+                    <div class="preview-container" style="margin-top: 10px; display: none;">
                         <img id="preview<%= i %>" src="#" alt="Image preview" class="image-preview">
-                        <div id="image<%= i %>-error" class="error-message"></div>
                     </div>
-                <% } %>
-            </div>
+                    <input type="hidden" name="croppedImage<%= i %>" id="croppedImage<%= i %>" value="">
+                    <div id="image<%= i %>-error" class="error-message"></div>
+                </div>
+            <% } %>
+        </div>
 
-            <!-- Form Actions -->
-            <div class="form-actions">
-                <button type="submit">Publish Product</button>
-            </div>
-        </form>
-    </section>
+        <div class="form-actions">
+            <button type="submit">Publish Product</button>
+        </div>
+    </form>
+</section>
 
-    <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
-    <script>
-        // Live Validation Logic
-        function validateFields() {
+<script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+<script>
+     let croppers = {};
+
+function previewImage(event, index) {
+    const input = event.target;
+    const previewContainer = input.parentElement.querySelector('.preview-container');
+    const preview = document.getElementById(`preview${index}`);
+    const errorDiv = document.getElementById(`image${index}-error`);
+
+    // Reset previous states
+    previewContainer.style.display = 'none';
+    errorDiv.textContent = '';
+    if (croppers[index]) {
+        croppers[index].destroy();
+        delete croppers[index];
+    }
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        // Validation
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!validImageTypes.includes(file.type)) {
+            errorDiv.textContent = 'Please select a valid image file (JPEG, PNG, GIF, BMP, or WebP)';
+            input.value = '';
+            return;
+        }
+
+        if (file.size > maxSize) {
+            errorDiv.textContent = 'Image file size must be less than 5MB';
+            input.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            previewContainer.style.display = 'block';
+
+            croppers[index] = new Cropper(preview, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+                ready: function() {
+                    this.cropper.crop();
+                }
+            });
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+   // Live Validation Logic
+   function validateFields() {
             const fields = [
                 { id: 'productName', errorId: 'productName-error', validation: (value) => !value.trim() ? 'Product Name is required.' : '' },
                 { id: 'shortDescription', errorId: 'description-error', validation: (value) => !value.trim() ? 'Short Description is required.' : '' },
@@ -308,6 +359,24 @@
         document.getElementById('productForm').addEventListener('submit', function (e) {
             e.preventDefault();
             if (validateFields()) {
+
+            let imageCount = 0;
+        for (let i = 1; i <= 4; i++) {
+            if (document.getElementById(`image${i}`).files.length > 0) {
+                imageCount++;
+                
+                // Process cropped images before submitting
+                if (croppers[i]) {
+                    // Get the cropped canvas as a data URL
+                    const croppedDataUrl = croppers[i].getCroppedCanvas().toDataURL('image/jpeg');
+                    // Store the cropped image data in the hidden input
+                    document.getElementById(`croppedImage${i}`).value = croppedDataUrl;
+                }
+            }
+        }
+
+
+
                 const formData = new FormData(this);
                 fetch('/admin/addProducts', {
                     method: 'POST',
@@ -352,30 +421,7 @@
             }
         });
 
-        // Image Preview and Cropper
-        let croppers = {};
-        function previewImage(event, index) {
-            const input = event.target;
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const preview = document.getElementById(`preview${index}`);
-                    preview.src = e.target.result;
-                    preview.style.display = 'block';
 
-                    if (croppers[index]) croppers[index].destroy();
-                    croppers[index] = new Cropper(preview, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        ready: function () {
-                            this.cropper.crop();
-                        }
-                    });
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-    </script>
-</body>
-</html>
+</script>
+
 <%- include("../../views/partials/admin/footer") %>

@@ -70,23 +70,27 @@ const productSchema = new Schema({
   },
   weightSize: {
     type: Number,
-    required: true
+    required: true,
+    min: 0,
   },
   regularPrice: {
     type: Number,
-    required: true
+    required: true,
+    min: 0,
   },
   salePrice: {
     type: Number,
-    default: null
+    default: null,
+    min: 0,
   },
   stock: {
     type: Number,
-    required: true
+    required: true,
+    min: 0,
   },
   organic: {
     type: String,
-    required: true
+    required: true  
   },
   expirationDate: {
     type: Date,
@@ -94,7 +98,8 @@ const productSchema = new Schema({
   },
   productOffer: {
     type: Number,
-    default: 0
+    default: 0,
+    min: 0,
   },
   importedLocal: {
     type: String,

@@ -1,0 +1,304 @@
+<%- include("../../views/partials/user/header") %>
+
+<style>
+    /* Wishlist Page Styles */
+.main {
+    background-color: #f9f9f9;
+    min-height: 100vh;
+}
+
+.shopping-summery {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.shopping-summery thead {
+    background: #f5f5f5;
+}
+
+.main-heading th {
+    padding: 20px;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    font-size: 14px;
+    border-bottom: 2px solid #eee;
+}
+
+.product-thumbnail img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    border-radius: 8px;
+    padding: 5px;
+    background: #fff;
+    border: 1px solid #eee;
+}
+
+.product-name a {
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.product-name a:hover {
+    color: #4bb543;
+}
+
+.font-xs {
+    font-size: 12px;
+    color: #666;
+    margin-top: 8px;
+}
+
+.price span {
+    font-weight: 700;
+    color: #222;
+    font-size: 16px;
+}
+
+.btn-sm {
+    padding: 8px 20px;
+    font-size: 14px;
+    border-radius: 25px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.btn-sm:hover {
+    transform: translateY(-1px);
+}
+
+/* Add to Cart Button */
+.btn-sm:first-of-type {
+    background: #4bb543;
+    color: white;
+    border: none;
+}
+
+.btn-sm:first-of-type:hover {
+    background: #3fa339;
+}
+
+/* Remove Button */
+.btn-sm:last-of-type {
+    background:  #F28123;
+    color: white;
+    border: none;
+}
+
+.btn-sm:last-of-type:hover {
+    background: #000000;
+    color:  #F28123;
+}
+
+.fi-rs-trash {
+    margin-right: 5px;
+}
+
+/* Empty State */
+.lead.mb-4 {
+    font-size: 18px;
+    color: #666;
+    padding: 40px 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .shopping-summery {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .product-thumbnail img {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .btn-sm {
+        padding: 6px 15px;
+        font-size: 12px;
+    }
+    
+    .main-heading th {
+        font-size: 12px;
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-name {
+        font-size: 14px;
+    }
+    
+    .price span {
+        font-size: 14px;
+    }
+    
+    .btn-sm {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+</style>
+
+ <!-- Start Banner Area -->
+ <div class="breadcrumb-section breadcrumb-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 text-center">
+                <div class="breadcrumb-text">
+                    <p>Fresh and Organic</p>
+                    <h1>wishlist</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Banner Area -->
+
+
+
+<main class="main">
+    <br><br>
+
+    <section class="mt-50 mb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table shopping-summery text-center clean">
+                            <thead>
+                                <tr class="main-heading">
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Price</th>
+                                    <th scope="col">Add to Cart</th>
+                                    <th scope="col">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (wishlist && wishlist.length > 0) { %>
+                                    <% for (let product of wishlist) { %>
+                                        <tr>
+                                            <td class="image product-thumbnail">
+                                                <img src="<%= product.productImages[0] || '/images/placeholder.jpg' %>" 
+                                                     alt="<%= product.productName %>" />
+                                            </td>
+                                            <td class="product-des product-name">
+                                                <h5 class="product-name">
+                                                    <a href="/productDetails?id=<%= product._id %>">
+                                                        <%= product.productName %>
+                                                    </a>
+                                                </h5>
+                                                <p class="font-xs">
+                                                    <%= product.category?.name || 'N/A' %>
+                                              
+                                                </p>
+                                            </td>
+                                            <td class="price" data-title="Price">
+                                                ₹<span><%= product.salePrice?.toFixed(2) || '0.00' %></span>
+                                            </td>
+                                            <td class="text-center" data-title="Add to Cart">
+                                                <% if (cart.some(cartItem => cartItem.items.some(item => item.productId.toString() === product._id.toString()))) { %>
+                                                    <button class="btn btn-sm btn-secondary" disabled>Item in Cart</button>
+                                                <% } else { %>
+                                                    <button onclick="addToCart('<%= product._id %>', event)" class="btn btn-sm btn-primary">
+                                                        Add to Cart
+                                                    </button>   
+                                                <% } %>
+                                                
+                                            </td>
+                                            <td class="action" data-title="Remove">
+                                                <button class="btn btn-sm" onclick="confirmRemove('<%= product._id %>')">
+                                                    <i class="fi-rs-trash"></i> Remove
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <% } %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="5" class="text-center">
+                                            <p class="lead mb-4">No items found in Wishlist</p>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<%- include("../../views/partials/user/footer") %>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function confirmRemove(productId){
+        Swal.fire({
+            title:"Are You sure",
+            text:"You Won't be able to revert this",
+            icon:"warning",
+            showCancelButton:true,
+            confirmButtonColor:"#3085d6",
+            cancelButtonColor:"#d33",
+            confirmButtonText:"Yes, remove it",
+
+        }).then((result) => {
+            if(result.isConfirmed){
+                window.location.href = `/removeFromWishList?productId=${productId}`
+            }
+        })
+    }
+
+    function addToCart(productId) {
+    $.ajax({
+        url: '/add-cart',
+        method: "POST",
+        data: { productId: productId },
+        success: (response) => {
+            if (response.success) {
+                location.reload();
+
+
+            
+
+                let button = event.target;
+                button.innerText = "Item in Cart";
+                button.classList.remove("btn-primary");
+                button.classList.add("btn-secondary");
+                button.disabled = true; 
+
+            } else {
+                Swal.fire({
+                    title: "Error",
+                    text: response.message,
+                    icon: "error",
+                    timer: 2000
+                });
+            }
+        },
+        error: (error) => {
+            console.error("AJAX Error:", error);
+            Swal.fire({
+                title: "Error",
+                text: "There was an error adding the product to your cart",
+                icon: "error",
+                timer: 2000
+            });
+        }
+    });
+}
+
+</script>
+
+
+
+
+

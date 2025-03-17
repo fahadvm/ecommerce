@@ -10,8 +10,8 @@ const addressSchema = new Schema({
     },
     address :[{
         addressType:{
-        type:String,
-        required:true
+            type:String,
+            required:true
         },
         name:{
             type:String,
@@ -40,6 +40,10 @@ const addressSchema = new Schema({
         altPhone:{
             type:String,
             required:true
+        },
+        isDefault:{
+            type:Boolean,
+            default:false,
         }
 
     }]

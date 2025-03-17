@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile - <%= admin.username %></title>
+    <!-- Cropper.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" />
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; padding: 40px; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+        h1 { font-size: 28px; color: #2c3e50; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { font-weight: 600; color: #2980b9; display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
+        input[type="file"] { width: 100%; padding: 8px 0; }
+        button { background-color: #3498db; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #2980b9; }
+        #imagePreview { max-width: 100%; display: none; margin-top: 10px; }
+        .cropper-container { max-width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Edit Profile</h1>
+        <form id="profileForm" action="/admin/update-profile/<%= admin._id %>" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" value="<%= admin.username %>" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" value="<%= admin.email %>" required>
+            </div>
+            <div class="form-group">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
+                <img id="imagePreview" src="#" alt="Preview">
+            </div>
+            <button type="submit">Save Changes</button>
+            <a href="/admin/profile" class="back-link">Cancel</a>
+        </form>
+    </div>
+
+    <!-- Cropper.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        const image = document.getElementById('imagePreview');
+        const input = document.getElementById('profilePicture');
+        const form = document.getElementById('profileForm');
+        let cropper;
+
+        input.addEventListener('change', function (e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    image.src = event.target.result;
+                    image.style.display = 'block';
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(image, {
+                        aspectRatio: 1, // Square crop
+                        viewMode: 1,
+                        movable: true,
+                        zoomable: true,
+                        rotatable: false,
+                        scalable: false,
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (cropper) {
+                cropper.getCroppedCanvas({
+                    width: 200, // Adjust size as needed
+                    height: 200,
+                }).toBlob(function (blob) {
+                    const formData = new FormData(form);
+                    formData.set('profilePicture', blob, 'profile-picture.jpg');
+
+                    fetch(form.action, {
+                        method: 'POST',
+                        body: formData,
+                    }).then(response => {
+                        if (response.ok) {
+                            window.location.href = '/admin/profile';
+                        } else {
+                            alert('Error uploading profile picture');
+                        }
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        alert('Error uploading profile picture');
+                    });
+                }, 'image/jpeg');
+            } else {
+                // If no cropping, submit the form normally
+                form.submit();
+            }
+        });
+    </script>
+</body>
+</html>

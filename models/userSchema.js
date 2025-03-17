@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
 const {Schema} = mongoose
+const { v4: uuidv4 } = require('uuid');
+
 
 
 const userSchema = new Schema({
@@ -35,14 +37,14 @@ const userSchema = new Schema({
         type:Boolean,
         default:false
     },
-    // firstName:{
-    //     type:String,
-    //     required:false
-    // },
-    // secondName:{
-    //     type:String,
-    //     required:false
-    // },
+    firstName:{
+        type:String,
+        required:false
+    },
+    secondName:{
+        type:String,
+        required:false
+    },
     gender:{
         type:String,
         required:false
@@ -59,7 +61,7 @@ const userSchema = new Schema({
         type:Number,
         default:0
     },
-    whishlist:[{
+    wishlist:[{
         type:Schema.Types.ObjectId,
         ref:"Whishlist"
     }],
@@ -70,6 +72,10 @@ const userSchema = new Schema({
     createdOn:{
         type:Date,
         default:Date.now
+    },
+    referCode:{
+        type:String,
+        default:()=>uuidv4(),
     },
     redeemcode:{
         type:String
@@ -86,9 +92,6 @@ const userSchema = new Schema({
             type:Schema.Types.ObjectId,
             ref:"category"
         },
-        // brand:{
-        //     type:String,
-        // },
         searchOn:{
             type:Date,
             default:Date.now
@@ -96,6 +99,6 @@ const userSchema = new Schema({
     }]
 })
 
-const User = mongoose.model("user",userSchema)
+const User = mongoose.model("User",userSchema)
 
 module.exports = User;

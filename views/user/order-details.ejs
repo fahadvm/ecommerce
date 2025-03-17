@@ -1,0 +1,343 @@
+<%- include('../partials/user/header') %>
+
+    <style>
+        .order-details-card {
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .status-timeline {
+            display: flex;
+            justify-content: space-between;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .status-point {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .status-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-bottom: 10px;
+        }
+
+        .status-line {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #e0e0e0;
+            z-index: 0;
+        }
+
+        .status-active {
+            background-color: #28a745;
+        }
+
+        .status-inactive {
+            background-color: #e0e0e0;
+        }
+
+        .address-card {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+    </style>
+
+    <section class="banner-area organic-breadcrumb">
+        <!-- breadcrumb-section -->
+        <div class="breadcrumb-section breadcrumb-bg">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 offset-lg-2 text-center">
+                        <div class="breadcrumb-text">
+                            <p>Fresh and Organic</p>
+                            <h1>order details</h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- end breadcrumb section -->
+
+        <div class="container my-5">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">Home</a></li>
+                            <li class="breadcrumb-item"><a href="/orders">Orders</a></li>
+                            <li class="breadcrumb-item active">Order #<%= order.orderId %>
+                            </li>
+                        </ol>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="order-details-card">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Order #<%= order.orderId %>
+                            </h5>
+                            <span class="badge bg-light text-dark">
+                                <%= new Date(order.createdAt).toLocaleDateString() %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Order Status Timeline -->
+                        <div class="status-timeline">
+                            <div class="status-line"></div>
+                            <div class="status-point">
+                                <div
+                                    class="status-dot <%= order.status === 'pending' || order.status !== 'pending' ? 'status-active' : 'status-inactive' %>">
+                                </div>
+                                <small>PENDING</small>
+                            </div>
+                            <div class="status-point">
+                                <div
+                                    class="status-dot <%= order.status === 'confirmed' || order.status === 'shipped' || order.status === 'delivered' ? 'status-active' : 'status-inactive' %>">
+                                </div>
+                                <small>CONFIRMED</small>
+                            </div>
+                            <div class="status-point">
+                                <div
+                                    class="status-dot <%= order.status === 'shipped' || order.status === 'delivered' ? 'status-active' : 'status-inactive' %>">
+                                </div>
+                                <small>SHIPPED</small>
+                            </div>
+                            <div class="status-point">
+                                <div
+                                    class="status-dot <%= order.status === 'delivered' ? 'status-active' : 'status-inactive' %>">
+                                </div>
+                                <small>DELIVERED</small>
+                            </div>
+                        </div>
+
+                        <!-- Product Details -->
+                        <div class="row mb-4">
+                            <div class="col-md-8">
+                                <h5 class="mb-3">Product Details</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex">
+                                            <img src="<%= order.product.productImages[0] %>"
+                                                alt="<%= order.product.productName %>" class="product-image me-3">
+                                            <div>
+                                                <h6>
+                                                    <%= order.product.productName %>
+                                                </h6>
+                                                <p class="mb-1">Quantity: <%= order.quantity %>
+                                                </p>
+                                                <p class="mb-1">Price: ₹<%= order.price %>
+                                                </p>
+                                                <p class="mb-0">Status:
+                                                    <span class="badge <%= 
+                                                order.status === 'delivered' ? 'bg-success' :
+                                                order.status === 'cancelled' ? 'bg-danger' :
+                                                order.status === 'shipped' ? 'bg-info' :
+                                                'bg-warning'
+                                            %>">
+                                                        <%= order.status.toUpperCase() %>
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-4">
+                                <!-- Order Summary -->
+                                <h5 class="mb-3">Order Summary</h5>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span>Subtotal:</span>
+                                            <span>₹<%= order.totalPrice %></span>
+                                        </div>
+                                        <% if (order.discount> 0) { %>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Discount:</span>
+                                                <span>-₹<%= order.discount %></span>
+                                            </div>
+                                            <% } %>
+                                                <hr>
+                                                <div class="d-flex justify-content-between fw-bold">
+                                                    <span>Total:</span>
+                                                    <span>₹<%= order.finalAmount %></span>
+                                                </div>
+                                    </div>
+                                </div>
+
+                                <%if(order.status==='delivered' ){%>
+                                    <a href="/download-invoice?orderId=<%= order.orderId %>"
+                                        class="btn btn-primary mt-2">Download Invoice</a>
+                                    <%}%>
+
+
+                                        <!-- Cancel Order Button -->
+                                        <% if (order.status !=='cancelled' && order.status !=='delivered' &&
+                                            order.status !=='Returned' ) { %>
+                                            <button onclick="cancelOrder('<%= order._id %>')"
+                                                class="btn btn-danger w-100 mt-3">
+                                                Cancel Order
+                                            </button>
+
+                                            <% } else if (order.status==='delivered' ) { %>
+                                                <button onclick="returnOrder('<%= order._id %>')"
+                                                    class="btn btn-outline-primary btn-sm mt-2">
+                                                    Return Order
+                                                </button>
+                                                <% } %>
+                            </div>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <div class="address-card">
+                            <h5 class="mb-3">Shipping Address</h5>
+                            <p class="mb-1"><strong>
+                                    <%= address.name %>
+                                </strong></p>
+                            <p class="mb-1">
+                                <%=address.landMark %>
+                            </p>
+                            <p class="mb-1">
+                                <%= address.city %>, <%= address.state %>
+                                        <%= address.pincode %>
+                            </p>
+                            <p class="mb-1">Phone: <%=address.phone %>
+                            </p>
+                            <p class="mb-0">Email: <%= address.email %>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            async function cancelOrder(orderId) {
+                const { value: reason } = await Swal.fire({
+                    title: 'Cancel Order',
+                    input: 'select',
+                    inputLabel: 'Reason for cancellation',
+                    inputPlaceholder: 'Select a reason...',
+                    showCancelButton: true,
+                    inputOptions: {
+                        'changed': 'Changed My Mind',
+                        'price': 'Found Better Price Elsewhere',
+                        'delay': 'Shipping Takes Too Long',
+                        'mistake': 'Ordered by Mistake',
+                        'duplicate': 'Duplicate Order',
+                        'other': 'Other (Please specify)'
+                    },
+                    inputValidator: (value) => !value && 'Please select a reason!'
+                });
+
+                if (reason) {
+                    let finalReason = reason;
+
+                    // If "other" is selected, show textarea for additional details
+                    if (reason === 'other') {
+                        const { value: otherReason } = await Swal.fire({
+                            title: 'Please Specify Reason',
+                            input: 'textarea',
+                            inputLabel: 'Describe your reason for cancellation',
+                            inputPlaceholder: 'Type your reason here...',
+                            showCancelButton: true,
+                            inputValidator: (value) => !value && 'Please provide a description!'
+                        });
+
+                        if (!otherReason) {
+                            return; // Exit if user cancels the textarea input
+                        }
+
+                        finalReason = `Other: ${otherReason}`;
+                    } try {
+                        const response = await fetch('/orders/cancel', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ orderId, reason }),
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            await Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: 'Order cancelled successfully',
+                                timer: 1500
+                            });
+                            location.reload();
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        await Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: error.message || 'Failed to cancel order'
+                        });
+                    }
+                }
+            }
+
+            async function returnOrder(orderId) {
+                const { value: reason } = await Swal.fire({
+                    title: 'return Order',
+                    input: 'textarea',
+                    inputLabel: 'Reason for returnoing',
+                    inputPlaceholder: 'Type your reason here...',
+                    showCancelButton: true,
+                    inputValidator: (value) => !value && 'Please provide a reason!'
+                });
+
+                if (reason) {
+                    try {
+                        const response = await fetch(`/orders/return`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ reason, orderId })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            await Swal.fire('Success!', 'Order return successfully', 'success');
+                            location.reload();
+                        } else {
+                            throw new Error(data.message);
+                        }
+                    } catch (error) {
+                        Swal.fire('Error!', error.message, 'error');
+                    }
+                }
+            }
+        </script>
+
+        <%- include('../partials/user/footer') %>

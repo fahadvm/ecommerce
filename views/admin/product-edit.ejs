@@ -1,7 +1,10 @@
 <%- include("../../views/partials/admin/header") %>
 
 <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.min.css">
     <style>
         :root {
             --primary-color: #3498db;
@@ -70,6 +73,8 @@
         <div class="card-body">
             <form id="editProductForm" method="POST" action="/admin/editProduct/<%= product._id %>"
                 enctype="multipart/form-data">
+                <body onload="setDefaultendDate()"></body>
+
                 <!-- Product Name -->
                 <div class="mb-4">
                     <label for="productName" class="form-label">Product Name</label>
@@ -176,7 +181,7 @@
                     <div class="col-lg-6">
                         <div class="mb-4">
                             <label for="expirationDate" class="form-label">Expiration Date</label>
-                            <input name="expirationDate" type="date" value="<%= product.expirationDate %>"
+                            <input name="expirationDate" type="date" 
                                 class="form-control" id="expirationDate" required>
                             <div id="expirationDate-error" class="text-danger" style="display: none;"></div>
                         </div>
@@ -213,18 +218,23 @@
                 <div class="mb-4">
                     <label class="form-label">Product Images</label>
                     <div class="row">
-                        <% for(let i=0; i < 4; i++) { %>
+                        <% for(let i = 0; i < 4; i++) { %>
                             <div class="col-md-3 mb-3">
                                 <div class="card">
                                     <% if(product.productImages[i]) { %>
                                         <img src="/<%= product.productImages[i] %>" class="card-img-top" alt="Product Image">
                                         <div class="card-body">
-                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteSingleImage('<%= product.productImages[i] %>', '<%= product._id %>', '<%= i %>')">Delete</button>
+                                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteSingleImage('<%= product.productImages[i] %>', '<%= product._id %>', <%= i %>)">Delete</button>
                                         </div>
                                     <% } else { %>
                                         <div class="card-body">
-                                            <input type="file" name="image<%= i+1 %>" accept="image/*" class="form-control" onchange="previewImage(event, '<%= i %>')">
-                                            <img id="preview<%= i %>" src="#" alt="Image preview" style="display: none; max-width: 100%; height: auto; margin-top: 10px;">
+                                            <div class="image-upload-container">
+                                                <input type="file" name="image<%= i+1 %>" accept="image/*" class="form-control image-input" data-index="<%= i %>" onchange="previewImage(event, <%= i %>)">
+                                                <div class="preview-container" style="margin-top: 10px; display: none;">
+                                                    <img id="preview<%= i %>" src="#" alt="Image preview" style="max-width: 100%; height: auto;">
+                                                </div>
+                                                <input type="hidden" name="croppedImage<%= i+1 %>" id="croppedImage<%= i+1 %>" value="">
+                                            </div>
                                         </div>
                                     <% } %>
                                 </div>
@@ -246,129 +256,94 @@
 </section>
 
 <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.19/dist/sweetalert2.all.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
 <script>
-    function validateFields() {
-        const fields = [
-            { id: 'productName', errorId: 'productName-error', validation: (value) => !value.trim() ? 'Product Name is required.' : '' },
-            { id: 'shortDescription', errorId: 'description-error', validation: (value) => !value.trim() ? 'Short Description is required.' : '' },
-            { id: 'nutritionalInfo', errorId: 'nutritionalInfo-error', validation: (value) => !value.trim() ? 'Nutritional Information is required.' : '' },
-            { id: 'weightSize', errorId: 'weightSize-error', validation: (value) => !value.trim() ? 'Weight/Size is required.' : '' },
-            { id: 'regularPrice', errorId: 'regularPrice-error', validation: (value) => isNaN(value) || value < 0 ? 'Regular Price must be a positive number.' : '' },
-            { id: 'salePrice', errorId: 'salePrice-error', validation: (value) => value && isNaN(value) || value < 0 || value >= parseFloat(document.getElementById('regularPrice').value) ? 'Sale Price must be a positive number and less than Regular Price.' : '' },
-            { id: 'stock', errorId: 'stock-error', validation: (value) => isNaN(value) || value < 0 ? 'Stock must be a positive number.' : '' },
-            { id: 'organic', errorId: 'organic-error', validation: (value) => !value ? 'Organic field is required.' : '' },
-            { id: 'expirationDate', errorId: 'expirationDate-error', validation: (value) => value && new Date(value) < new Date() ? 'Expiration Date must be in the future.' : '' },
-            { id: 'importedLocal', errorId: 'importedLocal-error', validation: (value) => !value ? 'Product Origin is required.' : '' },
-            { id: 'freshFrozen', errorId: 'freshFrozen-error', validation: (value) => !value ? 'Product Condition is required.' : '' },
-            { id: 'category', errorId: 'category-error', validation: (value) => !value ? 'Category is required.' : '' },
-        ];
+function validateFields() {
+    const fields = [
+        { id: 'productName', errorId: 'productName-error', validation: (value) => !value.trim() ? 'Product Name is required.' : '' },
+        { id: 'shortDescription', errorId: 'description-error', validation: (value) => !value.trim() ? 'Short Description is required.' : '' },
+        { id: 'nutritionalInfo', errorId: 'nutritionalInfo-error', validation: (value) => !value.trim() ? 'Nutritional Information is required.' : '' },
+        { id: 'weightSize', errorId: 'weightSize-error', validation: (value) => !value.trim() ? 'Weight/Size is required.' : '' },
+        { id: 'regularPrice', errorId: 'regularPrice-error', validation: (value) => isNaN(value) || value < 0 ? 'Regular Price must be a positive number.' : '' },
+        { id: 'salePrice', errorId: 'salePrice-error', validation: (value) => value !== "" && (isNaN(value) || value < 0 || value >= parseFloat(document.getElementById('regularPrice').value)) ? 'Sale Price must be a positive number and less than Regular Price.' : '' },
+        { id: 'stock', errorId: 'stock-error', validation: (value) => isNaN(value) || value < 0 ? 'Stock must be a positive number.' : '' },
+        { id: 'organic', errorId: 'organic-error', validation: (value) => !value ? 'Organic field is required.' : '' },
+        { id: 'expirationDate', errorId: 'expirationDate-error', validation: (value) => value && new Date(value) < new Date() ? 'Expiration Date must be in the future.' : '' },
+        { id: 'importedLocal', errorId: 'importedLocal-error', validation: (value) => !value ? 'Product Origin is required.' : '' },
+        { id: 'freshFrozen', errorId: 'freshFrozen-error', validation: (value) => !value ? 'Product Condition is required.' : '' },
+        { id: 'category', errorId: 'category-error', validation: (value) => !value ? 'Category is required.' : '' },
+    ];
 
-        let isValid = true;
-        fields.forEach(field => {
-            const input = document.getElementById(field.id);
-            const errorElement = document.getElementById(field.errorId);
-            const errorMessage = field.validation(input.value);
-            errorElement.textContent = errorMessage;
-            errorElement.style.display = errorMessage ? 'block' : 'none';
-            if (errorMessage) isValid = false;
-        });
-
-        return isValid;
-    }
-
-    // Attach live validation to all fields
-    const inputFields = document.querySelectorAll('input, select, textarea');
-    inputFields.forEach(field => {
-        field.addEventListener('input', validateFields);
+    let isValid = true;
+    fields.forEach(field => {
+        const input = document.getElementById(field.id);
+        const errorElement = document.getElementById(field.errorId);
+        const errorMessage = field.validation(input.value);
+        errorElement.textContent = errorMessage;
+        errorElement.style.display = errorMessage ? 'block' : 'none';
+        if (errorMessage) isValid = false;
     });
 
-    let cropper;
-    const newImagesInput = document.getElementById('newImages');
-    const cropperContainer = document.getElementById('cropperContainer');
-    const cropperImage = document.getElementById('cropperImage');
-    const form = document.getElementById('editProductForm');
+    return isValid;
+}
 
-    newImagesInput.addEventListener('change', function (event) {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                cropperImage.src = e.target.result;
-                cropperContainer.style.display = 'block';
-                if (cropper) {
-                    cropper.destroy();
-                }
-                cropper = new Cropper(cropperImage, {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                });
-            }
-            reader.readAsDataURL(file);
-        }
-    });
+function setDefaultendDate() {
+   const today = new Date();
+   const tomorrow = new Date(today);
+   tomorrow.setDate(today.getDate() + 3);
 
-    form.addEventListener('submit', function (event) {
-        event.preventDefault();
-        if (validateFields()) {
-            if (cropper) {
-                cropper.getCroppedCanvas().toBlob((blob) => {
-                    const formData = new FormData(form);
-                    formData.set('newImages', blob, 'cropped-image.jpg');
+   const year = tomorrow.getFullYear();
+   let month = (tomorrow.getMonth() + 1).toString().padStart(2, "0");
+   let day = tomorrow.getDate().toString().padStart(2, "0");
+   document.getElementById("expirationDate").value = `${year}-${month}-${day}`;
+}
 
-                    fetch(form.action, {
-                        method: 'POST',
-                        body: formData
-                    })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Product updated successfully');
-                                window.location.href = '/admin/products';
-                            } else {
-                                alert('Error updating product: ' + data.message);
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('An error occurred while updating the product');
-                        });
-                }, 'image/jpeg');
-            } else {
-                form.submit();
-            }
-        }
-    });
 
-    let croppers = {}; // Store Cropper instances for each image
+// Attach live validation
+document.querySelectorAll('input, select, textarea').forEach(field => {
+    field.addEventListener('input', validateFields);
+});
+
+// Cropper handling for single and multiple images
+
+
+let croppers = {};
 
 function previewImage(event, index) {
     const input = event.target;
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        reader.onload = function (e) {
+        reader.onload = function(e) {
+            const previewContainer = input.parentElement.querySelector('.preview-container');
+            previewContainer.style.display = 'block';
+            
             const preview = document.getElementById(`preview${index}`);
             preview.src = e.target.result;
             preview.style.display = 'block';
 
-            // Destroy existing Cropper instance if it exists
             if (croppers[index]) {
                 croppers[index].destroy();
             }
 
-            // Initialize Cropper.js
             croppers[index] = new Cropper(preview, {
-                aspectRatio: 1, // Set aspect ratio (e.g., 1:1 for square)
-                viewMode: 1, // Restrict crop box to the image size
-                autoCropArea: 1, // Automatically set the crop area
+                aspectRatio: 1,
+                viewMode: 1,
+                ready: function() {
+                    this.cropper.crop();
+                }
             });
         };
         reader.readAsDataURL(input.files[0]);
     }
 }
 
-    function deleteSingleImage(imageName, productId, index) {
+
+
+
+function deleteSingleImage(imageName, productId, index) {
         Swal.fire({
             title: "delete image",
             text: "Are you sure you want to delete this image?",
@@ -407,88 +382,36 @@ function previewImage(event, index) {
         });
     }
 
-    document.getElementById('editProductForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
 
-        // Process cropped images
-        for (let i = 0; i < 4; i++) {
+
+// Form submission handling
+document.getElementById('editProductForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    if (!validateFields()) return;
+    for (let i = 0; i < 4; i++) {
             if (croppers[i]) {
-                croppers[i].getCroppedCanvas().toBlob((blob) => {
-                    formData.set(`image${i+1}`, blob, `cropped-image-${i+1}.jpg`);
-                }, 'image/jpeg');
+                // Get the cropped canvas as a data URL
+                const croppedDataUrl = croppers[i].getCroppedCanvas().toDataURL('image/jpeg');
+                // Store the cropped image data in the hidden input
+                document.getElementById(`croppedImage${i+1}`).value = croppedDataUrl;
             }
         }
 
-        fetch(this.action, {
-            method: 'POST',
-            body: formData
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Product updated successfully');
-                    window.location.href = '/admin/products';
-                } else {
-                    alert('Error updating product: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred while updating the product');
-            });
+    const formData = new FormData(this);
+
+
+    
+    // Submit form data
+    const response = await fetch(this.action, { method: 'POST', body: formData });
+    const data = await response.json();
+
+    Swal.fire({
+        icon: data.success ? 'success' : 'error',
+        title: data.success ? 'Success' : 'Error',
+        text: data.message
+    }).then(() => {
+        if (data.success) window.location.href = '/admin/products';
     });
-    
-    
-    document.getElementById('editProductForm').addEventListener('submit', function (e) {
-    e.preventDefault(); // Prevent the default form submission
-
-    const formData = new FormData(this); // Create FormData object from the form
-
-    // Process cropped images (if applicable)
-    for (let i = 0; i < 4; i++) {
-      if (croppers[i]) {
-        croppers[i].getCroppedCanvas().toBlob((blob) => {
-          formData.append(`image${i + 1}`, blob, `cropped-image-${i + 1}.jpg`);
-        }, 'image/jpeg');
-      }
-    }
-
-    // Submit the form data using fetch
-    fetch(this.action, {
-      method: 'POST',
-      body: formData,
-    })
-      .then((response) => response.json()) // Parse the JSON response
-      .then((data) => {
-        if (data.success) {
-          // Show SweetAlert success message
-          Swal.fire({
-            icon: 'success',
-            title: 'Success',
-            text: data.message,
-          }).then(() => {
-            // Redirect to the products page after the alert is closed
-            window.location.href = '/admin/products';
-          });
-        } else {
-          // Show SweetAlert error message
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: data.message,
-          });
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-        // Show SweetAlert for unexpected errors
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'An unexpected error occurred while updating the product.',
-        });
-      });
-  });
+});
 </script>

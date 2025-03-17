@@ -1,0 +1,180 @@
+<%-include("../../views/partials/user/header")%>
+
+	<div class="breadcrumb-section breadcrumb-bg">
+		<!-- ... existing breadcrumb content ... -->
+	</div>
+
+	<div class="cart-section mt-150 mb-150">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8 col-md-12">
+					<div class="cart-table-wrap">
+						<table class="cart-table">
+							<tbody>
+								<% if (cartItems && cartItems.items.length> 0) { %>
+									<% cartItems.items.forEach(item=> { %>
+										<tr class="table-body-row">
+											<td class="product-remove">
+												<a href="#" onclick="confirmRemove('<%= item.productId._id %>')">
+													<i class="fa-solid fa-trash"></i>												</a>
+											</td>
+											<td class="product-image">
+												<img src="<%= item.productId.productImages[0] %>"
+													alt="<%= item.productId.productName %>">
+											</td>
+											<td class="product-name">
+												<%= item.productId.productName %>
+											</td>
+											<td class="product-price">₹<%= item.price %>
+											</td>
+											<td class="product-quantity">
+												<input type="number" class="quantity-input" value="<%= item.quantity %>"
+													min="1"  data-id="<%= item.productId._id %>"
+													data-max-stock="<%=item.productId.stock%>">
+											</td>
+											<td class="product-total">₹<%= (item.price * item.quantity).toFixed(2) %>
+											</td>
+										</tr>
+										<% }); %>
+											<% } else { %>
+												<p>cart is empty</p>
+												<% } %>
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+				<div class="col-lg-4">
+					<div class="total-section">
+						<% if (cartItems && cartItems.items.length> 0) {%>
+						<table class="total-table">
+							<tbody>
+								<tr class="total-data">
+									<td><strong>Subtotal: </strong></td>
+									<td id="subtotal">₹<%= subtotal.toFixed(2) %>
+									</td>
+								</tr>
+								<tr class="total-data">
+									<td><strong>Shipping: </strong></td>
+									<td id="shipping">₹<%= shipping.toFixed(2) %>
+									</td>
+								</tr>
+								<tr class="total-data">
+									<td><strong>Total: </strong></td>
+									<td id="total">₹<%= total.toFixed(2) %>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="cart-buttons">
+							
+							<a href="/checkout" class="boxed-btn black">Check Out</a>
+							<%}%>
+							<a href="/shop" class="boxed-btn black">continue shoping</a>
+						</div>
+					</div>
+					<!-- ... coupon section ... -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<%-include("../../views/partials/user/footer")%>
+
+		<script>
+			 function confirmRemove(productId) {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "You won't be able to undo this action!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, remove it!"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `/remove-cart/${productId}`;
+            }
+        });
+    }
+			document.addEventListener('DOMContentLoaded', function () {
+				const quantityInputs = document.querySelectorAll('.quantity-input');
+
+				quantityInputs.forEach(input => {
+					input.addEventListener('change', function () {
+						const productId = this.dataset.id;
+						const quantity = parseInt(this.value);
+						const originalQuantity = parseInt(this.defaultValue);
+						const maxStock = parseInt(this.dataset.maxStock)
+
+
+						if (quantity > maxStock) {
+							Swal.fire({
+								title: 'Stock Limit Reached!',
+								text: `Only ${maxStock} items available!`,
+								icon: 'error'
+							});
+							this.value = maxStock; // Reset to original value
+							return; // Exit the function early
+						}
+
+						if (quantity > 5) {
+							Swal.fire({
+								title: 'user Limit Reached!',
+								text: `Only 5 items add to cart`,
+								icon: 'error'
+							});
+							this.value = originalQuantity; // Reset to original value
+							return; // Exit the function early
+						}
+
+						if (isNaN(quantity) || quantity < 1) {
+							Swal.fire({
+								title: 'please enter a  valid quantity',
+								text: `quantity must be positive number`,
+								icon: 'error'
+							});
+							this.value = originalQuantity;
+							return;
+						}
+
+						fetch('/update-cart-quantity', {
+							method: 'POST',
+							headers: {
+								'Content-Type': 'application/json',
+								'Accept': 'application/json'
+							},
+							body: JSON.stringify({ productId, quantity })
+						})
+							.then(response => {
+								if (!response.ok) throw new Error('Network response was not ok');
+								return response.json();
+							})
+							.then(data => {
+								if (data.success) {
+									// Update individual product total
+									const row = this.closest('tr');
+									const price = parseFloat(row.querySelector('.product-price').textContent.replace('₹', ''));
+									const totalCell = row.querySelector('.product-total');
+									totalCell.textContent = '₹' + (price * quantity).toFixed(2);
+
+									// Update subtotal, shipping, and total
+									document.getElementById('subtotal').textContent = '₹' + data.subtotal.toFixed(2);
+									document.getElementById('shipping').textContent = '₹' + data.shipping.toFixed(2);
+									document.getElementById('total').textContent = '₹' + data.total.toFixed(2);
+
+									// Update default value to current quantity
+									this.defaultValue = quantity;
+								} else {
+									throw new Error(data.message || 'Failed to update cart');
+								}
+							})
+							.catch(error => {
+								console.error('Error:', error);
+								alert('Error updating quantity: ' + error.message);
+								this.value = originalQuantity;
+							});
+					});
+				});
+			});
+		</script>

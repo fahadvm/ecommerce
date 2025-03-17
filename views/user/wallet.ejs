@@ -1,0 +1,402 @@
+<%- include("../../views/partials/user/header") %>
+
+<title>Wallet - Frootspeedika</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+    :root {
+        --dark-bg: #000000;
+        --accent-orange: #ff8c42;
+        --secondary-bg: #0A2E36;
+        --text-primary: #ffffff;
+        --text-secondary: #cccccc;
+    }
+
+    body {
+        background-color: var(--dark-bg);
+        color: var(--text-primary);
+        font-family: 'Inter', sans-serif;
+        margin: 0;
+    }
+    a{
+        text-decoration: none;
+    }
+
+    .sidebar {
+        height: auto;
+        background: var(--secondary-bg);
+        padding: 2rem 1.5rem;
+        border-right: 1px solid rgba(255, 140, 66, 0.1);
+        transition: left 0.3s ease;
+    }
+
+    .sidebar a {
+        color: var(--text-primary);
+        text-decoration: none;
+        padding: 1rem;
+        margin: 0.5rem 0;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .sidebar a:hover,
+    .sidebar .active {
+        background: rgba(255, 140, 66, 0.1);
+        transform: translateX(5px);
+    }
+
+    .sidebar a:focus {
+        outline-offset: 2px;
+    }
+
+    .profile-container {
+        padding: 3rem;
+        background: var(--secondary-bg);
+        border-radius: 12px;
+        margin: 2rem 0;
+        border: 1px solid rgba(255, 140, 66, 0.1);
+    }
+
+    h1, h2, h3, h4, h5 {
+        font-family: 'Bodoni Moda', serif;
+        color: var(--accent-orange);
+        font-size: 1.5em;
+    }
+
+    .stats-card {
+        background: var(--dark-bg);
+        border: 1px solid var(--accent-orange);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    /* .stats-card {
+        font-size: 1rem;
+        color: white;
+        padding: 15px;
+        background-color: #333;
+        border-radius: 8px;
+        text-align: center;
+    } */
+    .stats-card h5 {
+        margin-bottom: 5px;
+        font-size: 3.0em;
+
+        
+    }
+    .stats-card p {
+        margin-bottom: 0;
+    }
+    .btn-orange {
+        background: var(--accent-orange);
+        color: var(--dark-bg);
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-orange:hover {
+        background: #ff9f5e;
+        transform: translateY(-2px);
+    }
+
+    .btn-orange:focus {
+        box-shadow: 0 0 0 3px rgba(255, 140, 66, 0.5);
+    }
+
+    .transaction-card {
+        background: var(--dark-bg);
+        border: 1px solid rgba(255, 140, 66, 0.1);
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .transaction-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(255, 140, 66, 0.1);
+    }
+
+    .transaction-status {
+        background: rgba(255, 140, 66, 0.1);
+        color: var(--accent-orange);
+        padding: 0.25rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+    }
+
+    
+
+    .hidden {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100vh;
+            z-index: 1000;
+        }
+        
+        .sidebar.active {
+            left: 0;
+        }
+        
+        .main-content {
+            margin-left: 0 !important;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+     <!-- breadcrumb-section -->
+     <div class="breadcrumb-section breadcrumb-bg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2 text-center">
+                    <div class="breadcrumb-text">
+                        <p>Fresh and Organic</p>
+                        <h1>Wallet</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end breadcrumb section -->
+    <div class="container-fluid">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar">
+                <h3 class="mb-4">Frootspeedika</h3>
+                <a href="/userProfile"><i class="fas fa-user"></i> Dashboard</a>
+                <a href="/orders"><i class="fas fa-history"></i> Order History</a>
+                <a href="/address"><i class="fas fa-map-marker-alt"></i> Address Book</a>
+                <a href="/editProfile"><i class="fas fa-cog"></i> Account Settings</a>
+                <a href="/wallet" class="active"><i class="fa-solid fa-wallet"></i> Wallet</a>
+                <a href="/coupons"><i class="fa-duotone fa-solid fa-ticket"></i> Coupons</a>
+                <a href="#" onclick="confirmAdminLogout(event)"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </nav>
+
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4 main-content" style="background: #cccccc;">
+                <div class="profile-container">
+
+                    <div id="wallet-content" class="hidden">
+                        <h1 class="mb-4">Your Wallet</h1>
+                        <div class="row g-4 mb-5">
+                            <div class="col-md-4">
+                                <div class="stats-card" style="font-size:1rem">
+                                    <h5 id="totalCredit" class="text-success">₹<%= wallet.totalCredit ? wallet.totalCredit.toFixed(2) : '0.00' %></h5>
+                                    <p class="mb-0" style="color: white;  font-size: large;">Total Credit <i class="fas fa-arrow-up"></i></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stats-card" style="font-size:1rem">
+                                    <h5 id="currentBalance" >₹<%= wallet.balance ? wallet.balance.toFixed(2) : '0.00' %></h5>
+                                    <p class="mb-0" style="color: white;  font-size: large;">Current Balance</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stats-card" style="font-size:1rem">
+                                    <h5 id="totalDebit" class="text-danger">₹<%= wallet.totalDebit ? wallet.totalDebit.toFixed(2) : '0.00' %></h5>
+                                    <p class="mb-0" style="color: white; font-size: large;">Total Debit <i class="fas fa-arrow-down"></i></p>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        <div class="mt-5">
+                            <h3 class="mb-4 text-xl font-semibold">Recent Transactions</h3>
+                            <% if (wallet.transactions && wallet.transactions.length > 0) { %>
+                                <% wallet.transactions.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(transaction => { %>
+                                    <div class="transaction-card">
+                                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                            <div class="transaction-details">
+                                                <h5 class="mb-1"><%= transaction.description || 'Transaction' %></h5>
+                                                <p class="text-secondary mb-0">
+                                                    <%= new Date(transaction.date).toLocaleString('en-IN', { 
+                                                        dateStyle: 'medium', 
+                                                        timeStyle: 'short' 
+                                                    }) %>
+                                                </p>
+                                            </div>
+                                            <div class="transaction-amount text-end">
+                                                <span class="transaction-status <%= transaction.type %>">
+                                                    <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
+                                                </span>
+                                                <h4 class="mt-2 <%= transaction.type === 'credit' ? 'text-success' : 'text-danger' %>">
+                                                    <%= transaction.type === 'credit' ? '+' : '-' %>₹<%= transaction.amount.toFixed(2) %>
+                                                </h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% }); %>
+                            <% } else { %>
+                                <div class="transaction-card">
+                                    <p>No transactions yet.</p>
+                                </div>
+                            <% } %>
+                            <div class="pagination-controls mt-4 text-center">
+                                <% if (currentPage > 1) { %>
+                                    <a href="/wallet?page=<%= currentPage - 1 %>&limit=5" class="btn-orange me-2">Previous</a>
+                                <% } %>
+                                <span style="color: var(--accent-orange); font-size: 1rem;">
+                                    Page <%= currentPage %> of <%= totalPages %>
+                                </span>
+                                <% if (currentPage < totalPages) { %>
+                                    <a href="/wallet?page=<%= currentPage + 1 %>&limit=5" class="btn-orange ms-2">Next</a>
+                                <% } %>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 text-center">
+                            <div class="wallet-actions">
+                                <input type="number" id="amount" placeholder="Enter Amount" min="1" max="100000"
+                                    style="color: rgb(0, 0, 0); padding: 0.75rem; border-radius: 8px; border: 1px solid var(--accent-orange);">
+                                <button class="btn-orange me-3" onclick="addMoney()">Add Funds</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        async function addMoney() {
+            try {
+                const amountInput = document.getElementById("amount");
+                const amount = parseFloat(amountInput.value);
+                
+                if (isNaN(amount) || amount <= 0) {
+                    Swal.fire('Error', 'Please enter a valid amount greater than 0', 'error');
+                    return;
+                }
+                
+                if (amount > 100000) {
+                    Swal.fire('Error', 'Amount exceeds maximum limit of ₹1,00,000', 'error');
+                    return;
+                }
+
+                const response = await fetch('/wallet/create-order', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ amount }),
+                });
+
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error(data.message || 'Failed to create order');
+                }
+
+                const options = {
+                    key: '<%= process.env.RAZORPAY_KEY_ID %>', // Use environment variable
+                    amount: data.amount,
+                    currency: data.currency,
+                    order_id: data.orderId,
+                    name: 'FROOTS PEEDIKA',
+                    description: 'Add Money to Wallet',
+                    handler: async function (response) {
+                        try {
+                            const verifyResponse = await fetch('/wallet/payment-success', {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    amount,
+                                    razorpay_payment_id: response.razorpay_payment_id,
+                                    razorpay_order_id: response.razorpay_order_id,
+                                    razorpay_signature: response.razorpay_signature,
+                                }),
+                            });
+                            
+                            const result = await verifyResponse.json();
+                            
+                            if (result.success) {
+                                document.getElementById('currentBalance').innerText = `₹${result.newBalance.toFixed(2)}`;
+                                amountInput.value = '';
+                                await Swal.fire('Success', 'Money added successfully!', 'success');
+                                location.reload();
+                            } else {
+                                throw new Error(result.message || 'Payment verification failed');
+                            }
+                        } catch (error) {
+                            Swal.fire('Error', error.message || 'Payment processing failed', 'error');
+                        }
+                    },
+                    prefill: {
+                        name: '<%= wallet.userId.username %>',
+                        email: '<%= wallet.userId.email %>',
+                        contact: '<%= wallet.userId.phone %>',
+                    },
+                    theme: { color: '#ff8c42' },
+                    modal: {
+                        ondismiss: function() {
+                            Swal.fire('Info', 'Payment cancelled', 'info');
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch (error) {
+                Swal.fire('Error', error.message || 'Failed to initiate payment', 'error');
+            }
+        }
+
+        // Mobile menu toggle and loading state
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.querySelector('.sidebar');
+            const toggleBtn = document.createElement('button');
+            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            toggleBtn.className = 'btn-orange d-md-none m-3 position-fixed';
+            toggleBtn.style.zIndex = '1001';
+            toggleBtn.onclick = () => sidebar.classList.toggle('active');
+            document.body.prepend(toggleBtn);
+
+            setTimeout(() => {
+                document.getElementById('wallet-content').classList.remove('hidden');
+            }, 0);
+        });
+    </script>
+
+
+<script>
+    function confirmAdminLogout(event) {
+    event.preventDefault();
+    Swal.fire({
+    title: "Are you sure?",
+    text: "You will be logged out!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "Yes, Logout"
+}).then((result) => {
+    if (result.isConfirmed) {
+        window.location.href = "/logout"; // Redirect only if confirmed
+    }
+});
+    
+}
+</script>
+    <%- include("../../views/partials/user/footer") %>

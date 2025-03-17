@@ -1,0 +1,12 @@
+<%- include("../../views/partials/user/header") %>
+<div class="container mt-5">
+    <h1>Add Funds</h1>
+    <form id="addFundsForm" class="mt-4">
+        <div class="mb-3">
+            <label for="amount" class="form-label">Amount (₹)</label>
+            <input type="number" class="form-control" id="amount" name="amount" min="1" required>
+        </div>
+        <button type="submit" class="btn-orange">Proceed to Pay</button>
+    </form>
+</div>
+<%- include("../../views/partials/user/footer") %>

@@ -1,20 +1,24 @@
 <%- include('../partials/user/header') %>
-   
+
 
     <style>
         :root {
-            --dark-bg: #121212;
-            --accent-gold: #c4a277;
-            --secondary-bg: #543c0ec6;
-            --text-primary: #c4a277;
-            --text-secondary: #888;
+            --dark-bg: #ff0000;
+            --accent-gold: #000000;
+            --secondary-bg: #ffffff94;
+            --text-primary: #ff008c;
+            --text-secondary: #00ff1a;
         }
 
         .product-page {
             padding: 2rem;
             max-width: 1200px;
             margin: 0 auto;
-            margin-top: 100px;
+            margin-top: 50px;
+            box-shadow: 0 0 20px #e4e4e4;
+            padding-bottom: 50px;
+            border-radius: 5px;
+            background: #fff6eb94;
         }
 
         .product-container {
@@ -58,7 +62,9 @@
         .product-info {
             padding: 2rem;
             background-color: var(--secondary-bg);
-            border-radius: 8px;
+            box-shadow: 0 0 20px #e4e4e4;
+            padding-bottom: 50px;
+            border-radius: 5px;
         }
 
         .product-title {
@@ -107,14 +113,16 @@
         }
 
         .add-to-cart {
-            background: #c4a277;
-            color: #121212;
+            background: #F28123;
+            color: #ffffff;
+            font-family: Poppins, sans-serif;
+            border-radius: 50px;
         }
 
         .wishlist {
             background: none;
-            border: 1px solid #c4a277;
-            color: #c4a277;
+            border: 1px solid #F28123;
+            color: #F28123;
         }
 
         .recommended-section {
@@ -227,7 +235,9 @@
             /* Zoom effect */
         }
     </style>
+    <div class="toppybar" style="height: 90px;background:#051922;">
 
+    </div>
     <div class="product-page">
         <div class="product-container">
             <!-- Product Gallery (Left Side - 50%) -->
@@ -271,8 +281,8 @@
                 </div>
 
                 <!-- 💰 Price & Discounts (Dynamic) -->
-                <p class="original-price">Original Price: <del>$<%= product.regularPrice %></del></p>
-                <p class="discounted-price">Discounted Price: <span class="highlight">$<%= product.salePrice %></span>
+                <p class="original-price">Original Price: <del>₹<%= product.regularPrice %></del></p>
+                <p class="discounted-price">Discounted Price: <span class="highlight">₹<%= product.salePrice %></span>
                 </p>
                 <p class="offer">Offer Applied: <%= totalOffer %>% OFF</p>
 
@@ -288,7 +298,10 @@
                 <!-- 🛒 Add to Cart & Wishlist Buttons -->
                 <div class="buttons">
                     <% if (product.stock> 0) { %>
-                        <button class="add-to-cart" onclick="addToCart('<%= product._id %>')">Add to Cart</button>
+                        <button class="add-to-cart" onclick="addToCart('<%= product._id %>')">
+                            <i class="fas fa-shopping-cart"></i> Add to Cart
+                        </button>
+
                         <% } %>
                             <button class="wishlist" onclick="addToWishlist('<%= product._id %>')">❤ Add to
                                 Wishlist</button>
@@ -315,36 +328,41 @@
 
         </div>
     </div>
-    <section class="related-product-area section_gap_bottom">
-		<div class="container">
-			<div class="row justify-content-center">
-				<div class="col-lg-6 text-center">
-					<div class="section-title">
-						<h1>Related Products</h1>
-						<p>Explore our range of related products that complement your purchase. Each item is carefully selected to ensure the highest quality and satisfaction.</p>
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<%for(let i=0;i< products.length; i++){ %>
-					<div class="col-lg-3 col-md-4 text-center">
-						<div class="single-product-item">
-							<div class="product-image">
-								<a href="/productDetails?id=<%=products[i]._id%>">
-									<img src="<%= products[i].productImages[0] %>" alt="<%= product.image %>">
-								</a>
-							</div>
-							<h3><%= products[i].productName %></h3>
-							<p class="product-price"><span>Per Kg</span> <%= product.salePrice %>$ </p>
-							<a href="/productDetails?id=<%=products[i]._id.toString()%>" class="cart-btn">
-								<i class="fas fa-shopping-cart"></i> view details</details>
-							</a>
-						</div>
-					</div>
-				<% }; %>
-			</div>
-            
-	</section>
+    <section class="related-product-area section_gap_bottom mt-5">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 text-center">
+                    <div class="section-title">
+                        <h1>Related Products</h1>
+                        <p>Explore our range of related products that complement your purchase. Each item is carefully
+                            selected to ensure the highest quality and satisfaction.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <% for(let i=0; i < 8 && i < products.length; i++) { %>
+                    <div class="col-lg-3 col-md-4 text-center">
+                        <div class="single-product-item">
+                            <div class="product-image">
+                                <a href="/productDetails?id=<%= products[i]._id.toString() %>">
+                                    <img src="<%= products[i].productImages[0] %>" alt="<%= products[i].productName %>">
+                                </a>
+                            </div>
+                            <h3>
+                                <%= products[i].productName %>
+                            </h3>
+                            <p class="product-price">
+                                <span>Per Kg</span>₹ <%= products[i].salePrice %>
+                            </p>
+                            <a href="/productDetails?id=<%= products[i]._id.toString() %>" class="cart-btn">
+                                <i class="fas fa-shopping-cart"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                    <% } %>
+            </div>
+
+    </section>
 
     <script>
 
@@ -384,6 +402,171 @@
                 btn.classList.add('selected');
             });
         });
+
+        function addToWishlist(productId) {
+    if (!productId) {
+        Swal.fire({
+            title: 'Invalid Product',
+            text: 'Invalid product ID. Please try again.',
+            icon: 'error',
+            background: '#1a1a1a',
+            color: '#ffffff',
+            customClass: {
+                popup: 'border-orange'
+            },
+            buttonsStyling: false,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#ff8c42'
+        });
+        return;
+    }
+
+
+    $.ajax({
+        url: '/addToWishlist',
+        method: 'POST',
+        contentType: 'application/json', 
+        data: JSON.stringify({ productId }),
+        success: (response) => {
+            if (response.status) {
+                Swal.fire({
+                    title: 'Added to Wishlist',
+                    text: 'The product has been added to your wishlist!',
+                    icon: 'success',
+                    timer: 2000,
+                    showConfirmButton: false,
+                    background: '#1a1a1a',
+                    color: '#ffffff',
+                    customClass: {
+                        popup: 'border-orange'
+                    },
+                    buttonsStyling: false,
+                    timerProgressBar: true
+                });
+            } else if (response.status === 401) { 
+                Swal.fire({
+                    title: 'Login Required',
+                    text: 'Please log in to add items to your wishlist.',
+                    icon: 'warning',
+                    confirmButtonText: 'Log In',
+                    background: '#1a1a1a',
+                    color: '#ffffff',
+                    confirmButtonColor: '#ff8c42'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '/login';
+                    }
+                });
+            } else {
+                Swal.fire({
+                    title: 'Failed to Add',
+                    text: response.message || 'Please log in to add items to your wishlist.',
+                    icon: 'warning',
+                    background: '#1a1a1a',
+                    color: '#ffffff',
+                    customClass: {
+                        popup: 'border-orange'
+                    },
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#ff8c42'
+                });
+            }
+        },
+        error: (xhr, status, error) => {
+            console.error("AJAX Error:", xhr, status, error);
+            const errorMessage = xhr.responseJSON?.message || "There was an error adding the product to your wishlist.";
+
+            Swal.fire({
+                title: 'Error',
+                text: errorMessage,
+                icon: 'error',
+                background: '#1a1a1a',
+                color: '#ffffff',
+                customClass: {
+                    popup: 'border-orange'
+                },
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#ff8c42'
+            });
+        }
+    });
+}
+
+
+
+        //add to cart
+        function addToCart(productId) {
+            fetch('/add-cart', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId })
+            })
+                .then(response => {
+                    // Check if the response is not OK (e.g., 401)
+                    if (!response.ok) {
+                        return response.json().then(data => {
+                            // Throw an error with the message from the backend
+                            throw new Error(data.message || 'Something went wrong');
+                        });
+                    }
+                    return response.json(); // Proceed if status is 200-299
+                })
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Product added to cart!',
+                            icon: 'success',
+                            showCancelButton: true,
+                            confirmButtonText: 'Go to Cart',
+                            cancelButtonText: 'Continue Shopping'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/cart';
+                            }
+                        });
+                    } else if (data.error === "max_limit") {
+                        Swal.fire({
+                            title: 'Max limit reached!',
+                            text: 'You can only add up to 5 of this item.',
+                            icon: 'warning'
+                        });
+                    } else if (data.error === "out_of_stock") {
+                        Swal.fire({
+                            title: 'Out of stock!',
+                            text: 'Not enough stock available.',
+                            icon: 'error'
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Failed to add product to cart.',
+                            icon: 'error'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error.message);
+                    // Handle specific backend messages like "User not logged in"
+                    if (error.message === "User not logged in") {
+                        Swal.fire({
+                            title: 'Login Required',
+                            text: 'Please log in to add items to your cart.',
+                            icon: 'warning',
+                            confirmButtonText: 'Log In',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = '/login'; // Redirect to login page
+                            }
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Error',
+                            text: error.message || 'Something went wrong. Please try again.',
+                            icon: 'error'
+                        });
+                    }
+                });
+        }
     </script>
 
     <%- include('../partials/user/footer') %>
