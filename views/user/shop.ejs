@@ -68,9 +68,6 @@
 				width: 100%;
 			}
 		}
-
-
-		
 	</style>
 
 
@@ -111,18 +108,18 @@
 
 			<div class="product-filters">
 				<ul>
-					<li class="filter-btn <%= !currentCategory ? 'active' : '' %>">
-						<a href="javascript:void(0)" data-category="">All</a>
+					<li class="filter-btn <%= !currentCategory ? 'active' : '' %>" data-category="">
+						All
 					</li>
 					<% categories.forEach(category=> { %>
-						<li class="filter-btn <%= currentCategory === category._id.toString() ? 'active' : '' %>">
-							<a href="javascript:void(0)" data-category="<%= category._id %>" >
-								<%= category.name %>
-							</a>
+						<li class="filter-btn <%= currentCategory === category._id.toString() ? 'active' : '' %>"
+							data-category="<%= category._id %>">
+							<%= category.name %>
 						</li>
 						<% }); %>
 				</ul>
 			</div>
+
 
 
 			<div class="row">
@@ -139,7 +136,7 @@
 							</h3>
 							<p class="product-price">
 								<span>
-									<%= product.category.name === 'juice' ? 'Per Ltr' : 'Per Kg' %>
+									<%= product.category.name==='juice' ? 'Per Ltr' : 'Per Kg' %>
 								</span>
 								₹<%= product.salePrice %>
 							</p>
@@ -190,105 +187,112 @@
 	<!-- end logo carousel -->
 	<%-include("../../views/partials/user/footer")%>
 
-		<script>
-
-			function resetFilters() {
-				window.location.href = "/shop";
-			}
-			document.addEventListener("DOMContentLoaded", function () {
-				const filterButtons = document.querySelectorAll(".filter-btn a");
-				const searchForm = document.getElementById("filter-form");
-				const paginationContainer = document.getElementById("pagination");
-
-				function loadProducts(category, page = 1) {
-					fetch(`/shop?category=${category}&page=${page}`, { headers: { "X-Requested-With": "XMLHttpRequest" } })
-						.then(response => response.json())
-						.then(data => {
-							let productContainer = document.querySelector(".product-section .row");
-							productContainer.innerHTML = ""; // Clear current products
-
-							if (data.products.length === 0) {
-								productContainer.innerHTML = "<p>No products found.</p>";
-							} else {
-								data.products.forEach(product => {
-									let productHTML = `
-									<div class="col-lg-4 col-md-6 text-center category-${products.category}">
-										<div class="single-product-item">
-											<div class="product-image">
-												<a href="/productDetails?id=${products._id}">
-													<img src="${products.productImages[0]}" alt="${productss.productName}">
-												</a>
-											</div>
-											<h3>${products.productName}</h3>
-											<p class="product-price"><span>Per Kg</span> ${products.salePrice}₹ </p>
-											<a href="/productDetails?id=${product._id}" class="cart-btn">
-												<i class="fas fa-shopping-cart"></i> View Details
+	<script>
+		function resetFilters() {
+			window.location.href = "/shop";
+		}
+	
+		document.addEventListener("DOMContentLoaded", function () {
+			const filterButtons = document.querySelectorAll(".filter-btn");
+			const searchForm = document.getElementById("filter-form");
+			const paginationContainer = document.getElementById("pagination");
+	
+			// Load Products
+			function loadProducts(category, page = 1) {
+				fetch(`/shop?category=${category}&page=${page}`, { 
+					headers: { "X-Requested-With": "XMLHttpRequest" } 
+				})
+				.then(response => response.json())
+				.then(data => {
+					let productContainer = document.querySelector(".product-section .row");
+					productContainer.innerHTML = "";
+	
+					if (data.products.length === 0) {
+						productContainer.innerHTML = "<p>No products found.</p>";
+					} else {
+						data.products.forEach(product => {
+							let productHTML = `
+								<div class="col-lg-4 col-md-6 text-center category-${product.category}">
+									<div class="single-product-item">
+										<div class="product-image">
+											<a href="/productDetails?id=${product._id}">
+												<img src="${product.productImages[0]}" alt="${product.productName}">
 											</a>
 										</div>
+										<h3>${product.productName}</h3>
+										<p class="product-price"><span>Per Kg</span> ${product.salePrice}₹ </p>
+										<a href="/productDetails?id=${product._id}" class="cart-btn">
+											<i class="fas fa-shopping-cart"></i> View Details
+										</a>
 									</div>
-								`;
-									productContainer.innerHTML += productHTML;
-								});
-							}
-
-							updatePagination(data.totalPages, category, page);
-						})
-						.catch(error => console.error("Error fetching products:", error));
-				}
-
-				function updatePagination(totalPages, category, currentPage) {
-					paginationContainer.innerHTML = "";
-					for (let i = 1; i <= totalPages; i++) {
-						let activeClass = i === currentPage ? "active" : "";
-						paginationContainer.innerHTML += `
-						<li><a href="#" class="pagination-btn ${activeClass}" data-page="${i}" data-category="${category}">${i}</a></li>
-					`;
-					}
-					attachPaginationEvents();
-				}
-
-				function attachPaginationEvents() {
-					document.querySelectorAll(".pagination-btn").forEach(button => {
-						button.addEventListener("click", function (event) {
-							event.preventDefault();
-							let category = this.getAttribute("data-category") || "";
-							let page = this.getAttribute("data-page");
-							loadProducts(category, page);
+								</div>
+							`;
+							productContainer.innerHTML += productHTML;
 						});
-					});
+					}
+	
+					updatePagination(data.totalPages, category, page);
+				})
+				.catch(error => console.error("Error fetching products:", error));
+			}
+	
+			// Update Pagination
+			function updatePagination(totalPages, category, currentPage) {
+				paginationContainer.innerHTML = "";
+				for (let i = 1; i <= totalPages; i++) {
+					let activeClass = i === currentPage ? "active" : "";
+					paginationContainer.innerHTML += `
+						<li>
+							<a href="#" class="pagination-btn ${activeClass}" data-page="${i}" data-category="${category}">${i}</a>
+						</li>
+					`;
 				}
-
-				
-
-				// Attach category filter event
-				filterButtons.forEach(button => {
-					button.addEventListener("click", function () {
-						const category = this.dataset.category;
-						const url = new URL(window.location.href);
-
-						if (category) {
-							url.searchParams.set('category', category);
-						} else {
-							url.searchParams.delete('category');
-						}
-
-						url.searchParams.delete('page');
-						window.location.href = url.toString();
-					});
-
-
-				});
-
-				searchForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        const params = new URLSearchParams(formData).toString();
-        window.location.href = `/shop?${params}`;
-    });
-
 				attachPaginationEvents();
+			}
+	
+			// Attach Pagination Events
+			function attachPaginationEvents() {
+				document.querySelectorAll(".pagination-btn").forEach(button => {
+					button.addEventListener("click", function (event) {
+						event.preventDefault();
+						let category = this.getAttribute("data-category") || "";
+						let page = this.getAttribute("data-page");
+						loadProducts(category, page);
+					});
+				});
+			}
+	
+			// Attach Category Filter Events
+			filterButtons.forEach(button => {
+				button.addEventListener("click", function () {
+					// Remove active class from all buttons
+					filterButtons.forEach(btn => btn.classList.remove("active"));
+	
+					// Add active class to clicked button
+					this.classList.add("active");
+	
+					const category = this.getAttribute("data-category");
+					const url = new URL(window.location.href);
+	
+					if (category) {
+						url.searchParams.set('category', category);
+					} else {
+						url.searchParams.delete('category');
+					}
+	
+					url.searchParams.delete('page');
+					window.location.href = url.toString();
+				});
 			});
-
-			
-		</script>
-
+	
+			// Handle Search Form Submission
+			searchForm.addEventListener('submit', function (e) {
+				e.preventDefault();
+				const formData = new FormData(this);
+				const params = new URLSearchParams(formData).toString();
+				window.location.href = `/shop?${params}`;
+			});
+	
+			attachPaginationEvents(); // Initialize pagination events
+		});
+	</script>

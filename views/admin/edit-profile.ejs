@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - <%= admin.username %></title>
     <style>
-        /* Reuse styles from the profile page */
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; padding: 40px; }
         .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 10px; padding: 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
         h1 { font-size: 28px; color: #2c3e50; text-align: center; }
@@ -14,12 +13,15 @@
         input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 5px; }
         button { background-color: #3498db; color: #fff; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
         button:hover { background-color: #2980b9; }
+        .back-link { display: inline-block; margin-top: 10px; color: #3498db; text-decoration: none; }
+        .back-link:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Edit Profile</h1>
-        <form action="/admin/update-profile/<%= admin._id %>" method="POST">
+        <!-- No action or method needed because JavaScript will handle the submission -->
+        <form id="updateProfileForm" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" value="<%= admin.username %>" required>
@@ -29,12 +31,52 @@
                 <input type="email" id="email" name="email" value="<%= admin.email %>" required>
             </div>
             <div class="form-group">
-                <label for="avatar">Avatar URL</label>
-                <input type="text" id="avatar" name="avatar" value="<%= admin.avatar || '' %>" placeholder="Optional">
+                <label for="profilePicture">Profile Picture</label>
+                <input type="file" id="profilePicture" name="profilePicture" accept="image/*">
             </div>
             <button type="submit">Save Changes</button>
             <a href="/admin/profile" class="back-link">Cancel</a>
+            <p id="message"></p>
         </form>
     </div>
+
+    <script>
+        const form = document.getElementById('updateProfileForm');
+        const message = document.getElementById('message');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('email', document.getElementById('email').value);
+
+            const fileInput = document.getElementById('profilePicture');
+            if (fileInput.files[0]) {
+                formData.append('profilePicture', fileInput.files[0]);
+            }
+
+            try {
+                const response = await fetch(`/admin/update-profile/<%= admin._id %>`, {
+                    method: 'PUT', // Use PUT for updating
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    message.textContent = 'Profile updated successfully!';
+                    message.style.color = 'green';
+                } else {
+                    message.textContent = data.message || 'Failed to update profile.';
+                    message.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                message.textContent = 'An error occurred while updating the profile.';
+                message.style.color = 'red';
+            }
+        });
+    </script>
 </body>
 </html>

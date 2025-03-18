@@ -154,39 +154,67 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  function confirmBlock(event, userId) {
-    event.preventDefault(); // Prevent default link action
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You are about to block this user!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, Block!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = "/admin/blockCustomer?id=" + userId;
-      }
-    });
-  }
+function confirmBlock(event, userId) {
+  event.preventDefault();
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to block this user!",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, Block!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/admin/customers/${userId}/block`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isBlocked: true })
+      })
+      .then(response => {
+        if (response.ok) {
+          Swal.fire('Blocked!', 'The user has been blocked.', 'success')
+            .then(() => window.location.reload()); // Reload to reflect changes
+        } else {
+          Swal.fire('Error!', 'Failed to block user.', 'error');
+        }
+      });
+    }
+  });
+}
 
-  function confirmUnblock(event, userId) {
-    event.preventDefault();
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You are about to unblock this user!",
-      icon: "info",
-      showCancelButton: true,
-      confirmButtonColor: "#28a745",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, Unblock!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.href = "/admin/unblockCustomer?id=" + userId;
-      }
-    });
-  }
+function confirmUnblock(event, userId) {
+  event.preventDefault();
+  Swal.fire({
+    title: "Are you sure?",
+    text: "You are about to unblock this user!",
+    icon: "info",
+    showCancelButton: true,
+    confirmButtonColor: "#28a745",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, Unblock!",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/admin/customers/${userId}/unblock`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ isBlocked: false })
+      })
+      .then(response => {
+        if (response.ok) {
+          Swal.fire('Unblocked!', 'The user has been unblocked.', 'success')
+            .then(() => window.location.reload());
+        } else {
+          Swal.fire('Error!', 'Failed to unblock user.', 'error');
+        }
+      });
+    }
+  });
+}
 </script>
 
 <%- include("../../views/partials/admin/footer") %>

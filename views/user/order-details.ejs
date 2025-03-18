@@ -276,7 +276,7 @@
                         finalReason = `Other: ${otherReason}`;
                     } try {
                         const response = await fetch('/orders/cancel', {
-                            method: 'POST',
+                            method: 'patch',
                             headers: {
                                 'Content-Type': 'application/json',
                             },
@@ -320,7 +320,7 @@
                 if (reason) {
                     try {
                         const response = await fetch(`/orders/return`, {
-                            method: 'POST',
+                            method: 'patch',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({ reason, orderId })
                         });

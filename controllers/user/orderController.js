@@ -32,23 +32,35 @@ const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user;
         const { addressId, paymentMethod, totalAmountInput, discountAmount, couponCode } = req.body;
+
         const user = await User.findById(userId);
         const cartData = await Cart.findOne({ userId }).populate({
             path: 'items.productId',
             select: 'productName price salePrice productImages stock category isBlocked',
             populate: { path: 'category', select: 'isListed' }
         });
+
         console.log("cartData:", cartData)
 
         if (!user || !cartData || cartData.items.length === 0) {
-            return res.status(400).json({ success: false, message: 'Cart is empty' });
+            req.flash('error', 'cart is empty ');
+            return res.redirect('/checkout');
         }
 
+        // Validate user address
         const userAddress = await Address.findOne({ userId });
-        if (!userAddress) return res.status(400).json({ success: false, message: 'Address not found' });
+        if (!userAddress) {
+            req.flash('error', ' address not found');
+            return res.redirect('/checkout');
+        }
+
 
         const selectedAddress = userAddress.address.find(addr => addr._id.toString() === addressId);
-        if (!selectedAddress) return res.status(400).json({ success: false, message: 'Address not found' });
+
+        if (!selectedAddress) {
+            req.flash('error', 'Invalid address ');
+            return res.redirect('/checkout');
+        }
 
         const cartTotalBeforeDiscount = cartData.items.reduce((sum, item) => {
             return sum + (item.productId.salePrice * item.quantity);
@@ -59,20 +71,20 @@ const placeOrder = async (req, res) => {
         const orderItems = [];
         const orderIds = [];
 
-
-
-        const orders = await Promise.all(cartData.items.map(async (item) => {
+        const orders = [];
+        for (const item of cartData.items) {
             if (item.productId.stock < item.quantity) {
-                throw new Error(`Insufficient stock for ${item.productId.productName}`);
+                req.flash('error', `Insufficient stock for ${item.productId.productName}`);
+                return res.redirect('/checkout');
+
             }
 
             const subtotal = item.productId.salePrice * item.quantity;
-            const itemDiscount = (discountAmount && discountAmount > 0 && cartTotalBeforeDiscount > 0)
+            const itemDiscount = discountAmount
                 ? (subtotal / cartTotalBeforeDiscount) * discountAmount
                 : 0;
             const discountedSubtotal = subtotal - itemDiscount;
             const finalAmount = Math.max(0, discountedSubtotal);
-
 
             const order = new Order({
                 userId,
@@ -103,90 +115,96 @@ const placeOrder = async (req, res) => {
             });
 
             totalAmount += finalAmount;
-            orderIds.push({
-                orderId: order.orderId
-            });
-
-            if (paymentMethod === 'wallet') {
-                const wallet = await Wallet.findOne({ userId })
-                if (!wallet || wallet.balance < totalAmountInput) {
-                    return res.status(400).json({ success: false, message: "Insufficient wallet balance", })
-                }
-                
-            } else {
-                return order.save();
-            }
-        }));
+            orders.push(order);
+        }
 
         if (paymentMethod === 'wallet') {
-            const wallet = await Wallet.findOne({ userId })
+            const wallet = await Wallet.findOne({ userId });
 
             if (!wallet || wallet.balance < totalAmountInput) {
-                return res.status(400).json({ success: false, message: "Insufficient wallet balance", })
+                req.flash('error', 'Insufficient wallet balance');
+                return res.redirect('/checkout');
             }
-            wallet.balance -= totalAmountInput
-            wallet.totalDebited += totalAmountInput
+
+            const savedOrders = await Promise.all(orders.map(order => order.save()));
+
+            wallet.balance -= totalAmountInput;
+            wallet.totalDebited += totalAmountInput;
             wallet.transactions.push({
                 amount: totalAmountInput,
-                type: "debit",
-                transactionPurpose: "purchase",
-                description: "Order payment from wallet",
-            })
+                type: 'debit',
+                transactionPurpose: 'purchase',
+                description: 'Order payment from wallet',
+            });
 
-            await wallet.save()
+            await wallet.save();
 
             await Transaction.create({
-                userId: userId,
+                userId,
                 amount: totalAmountInput,
-                transactionType: "debit",
-                paymentMethod: "wallet",
-                paymentGateway: "wallet",
-                status: "completed",
-                purpose: "purchase",
-                description: "Order payment from wallet",
-                orders: orderItems,
-                orderIds: orderIds,
-                walletBalanceAfter: wallet.balance,
-            })
+                transactionType: 'debit',
+                paymentMethod: 'wallet',
+                paymentGateway: 'wallet',
+                status: 'completed',
+                purpose: 'purchase',
+                description: 'Order payment from wallet',
+                orders: savedOrders.map(order => ({
+                    name: order.productName,
+                    quantity: order.quantity,
+                    finalPrice: order.finalAmount
+                })),
+                orderIds: savedOrders.map(order => ({ orderId: order._id })),
+                walletBalanceAfter: wallet.balance
+            });
         }
 
+        // Handle COD Payment
         if (paymentMethod === 'cod') {
+            const savedOrders = await Promise.all(orders.map(order => order.save()));
 
-            const transaction = new Transaction({
+            await Transaction.create({
                 userId,
                 amount: totalAmount,
-                transactionType: "debit",
+                transactionType: 'debit',
                 paymentMethod,
                 paymentGateway: paymentMethod,
-                purpose: "purchase",
-                description: "Order Payment",
-                orders: orderItems,
-                status: "pending",
-                orderIds: orderIds
-
+                status: 'pending',
+                purpose: 'purchase',
+                description: 'Order Payment',
+                orders: savedOrders.map(order => ({
+                    name: order.productName,
+                    quantity: order.quantity,
+                    finalPrice: order.finalAmount
+                })),
+                orderIds: savedOrders.map(order => ({ orderId: order._id }))
             });
-            await transaction.save();
         }
 
+        // Handle Online Payment (like Net Banking)
         if (paymentMethod !== 'wallet' && paymentMethod !== 'cod') {
+            const savedOrders = await Promise.all(orders.map(order => order.save()));
 
-            const transaction = new Transaction({
+            await Transaction.create({
                 userId,
                 amount: totalAmount,
-                transactionType: "debit",
-                paymentMethod:"netbanking",
+                transactionType: 'debit',
+                paymentMethod: 'netbanking',
                 paymentGateway: paymentMethod,
-                purpose: "purchase",
-                description: "Order Payment",
-                orders: orderItems,
-                status: "completed",
-                orderIds: orderIds
-
+                status: 'completed',
+                purpose: 'purchase',
+                description: 'Order Payment',
+                orders: savedOrders.map(order => ({
+                    name: order.productName,
+                    quantity: order.quantity,
+                    finalPrice: order.finalAmount
+                })),
+                orderIds: savedOrders.map(order => ({ orderId: order._id }))
             });
-            await transaction.save();
         }
+
+        // Prepare Aggregated Order Data
         const aggregatedOrder = {
-            orderId: orders[0]._id,
+            orderId: orders.length > 0 ? orders[0]._id : null,
             deliveryDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN'),
             items: orderItems,
             total: totalAmount,
@@ -194,32 +212,29 @@ const placeOrder = async (req, res) => {
             originalTotal: Number(totalAmount) + (Number(discountAmount) || 0),
             shippingCharge,
             couponCode: couponCode || null,
-
         };
 
-
-
         if (couponCode) {
-            const couponData = await Coupon.findOne({ couponCode: couponCode });
+            const couponData = await Coupon.findOne({ couponCode });
             if (couponData) {
                 couponData.users.push(userId);
                 await couponData.save();
             }
         }
 
-
-
-        res.render("user/order-success", { order: aggregatedOrder });
         await Cart.updateOne({ userId }, { $set: { items: [] } });
+
+        res.render('user/order-success', { order: aggregatedOrder });
 
     } catch (error) {
         console.error('Error in placeOrder:', error);
-        return res.status(500).json({ success: false, message: error.message || 'Failed to place order' });
-    }
+        req.flash('error', `${error.message}` || `Failed to place order`);
+        return res.redirect('/checkout');
 
+    }
 };
 
-// Example return handler
+
 const processReturn = async (orderId) => {
     try {
         const order = await Order.findById(orderId);
@@ -390,7 +405,6 @@ const returnOrder = async (req, res) => {
             // await wallet.save()
 
             await order.save();
-
             res.json({ success: true, message: 'Order returned successfully' });
         } else {
             res.status(400).json({ success: false, message: 'Order cannot be returned' });

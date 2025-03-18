@@ -240,22 +240,41 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-    function confirmRemove(productId){
-        Swal.fire({
-            title:"Are You sure",
-            text:"You Won't be able to revert this",
-            icon:"warning",
-            showCancelButton:true,
-            confirmButtonColor:"#3085d6",
-            cancelButtonColor:"#d33",
-            confirmButtonText:"Yes, remove it",
+    function confirmRemove(productId) {
+    Swal.fire({
+        title: "Are You sure?",
+        text: "You won't be able to revert this",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, remove it",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`/removeFromWishList?productId=${productId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire("Deleted!", data.message, "success").then(() => {
+                        location.reload(); // Refresh the page to reflect changes
+                    });
+                } else {
+                    Swal.fire("Error", data.message || "Failed to remove product", "error");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                Swal.fire("Error", "An unexpected error occurred", "error");
+            });
+        }
+    });
+}
 
-        }).then((result) => {
-            if(result.isConfirmed){
-                window.location.href = `/removeFromWishList?productId=${productId}`
-            }
-        })
-    }
 
     function addToCart(productId) {
     $.ajax({

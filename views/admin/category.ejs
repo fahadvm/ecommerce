@@ -290,7 +290,7 @@
       }).then((result) => {
         if (result.isConfirmed) {
           fetch(`/admin/editCategory/${id}`, {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -394,7 +394,7 @@
         showLoaderOnConfirm: true,
         preConfirm: (percentage) => {
           return fetch('/admin/addCategoryOffer', {
-            method: 'POST',
+            method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -440,7 +440,7 @@
         showLoaderOnConfirm: true,
         preConfirm: (percentage) => {
           return fetch('/admin/editCategoryOffer', {
-            method: 'POST',
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -483,7 +483,7 @@
       }).then((result) => {
         if (result.isConfirmed) {
           fetch('/admin/removeCategoryOffer', {
-            method: 'POST',
+            method: 'DELETE',
             headers: {
               'Content-Type': 'application/json',
             },

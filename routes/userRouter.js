@@ -13,6 +13,9 @@ const walletController1 = require("../controllers/user/walletController1")
 const couponController = require('../controllers/user/couponController')
 const Coupon = require("../models/couponSchema")
 const Address = require("../models/addressSchema")
+const Order = require("../models/orderSchema")
+
+
 
 
 
@@ -25,10 +28,10 @@ const multer = require("multer");
 const path = require('path')
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/"); // Ensure this directory exists
+        cb(null, "uploads/"); 
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
+        cb(null, Date.now() + path.extname(file.originalname)); 
     }
 });
 
@@ -95,33 +98,34 @@ router.post('/set-default-address', async (req, res) => {
 
 // whishlist management
 router.get("/wishlist", userAuth, wishlistController.loadWishlist)
-router.post("/addToWishlist", userAuth, wishlistController.addToWishlist)
-router.get("/removeFromWishList", userAuth, wishlistController.removeProduct)
+router.patch("/addToWishlist", userAuth, wishlistController.addToWishlist)
+router.delete("/removeFromWishList", userAuth, wishlistController.removeProduct)
 
 
 //cart management
 
 router.get('/cart', userAuth, cartController.loadCart)
-router.post('/add-cart', cartController.addCart)
-router.get('/remove-cart/:id', userAuth, cartController.removeCart)
-router.post('/update-cart-quantity', cartController.updatecartquantity)
+router.patch('/add-cart', cartController.addCart)
+router.delete('/remove-cart/:id', userAuth, cartController.removeCart)
+router.patch('/update-cart-quantity', cartController.updatecartquantity)
 
 
 //checkout management
 router.get("/checkout", userAuth, checkoutController.loadCheckoutPage)
 router.post("/placeOrder", userAuth, orderController.placeOrder);
 
+
 //coupon mangement
 router.get("/coupons", userAuth,  couponController.loadcoupon)
-router.post('/applycoupon', userAuth, couponController.applyCoupon)
+router.patch('/applycoupon', userAuth, couponController.applyCoupon)
 router.get('/getAvailableCoupons', userAuth, couponController.getAvailableCoupons);
-router.post('/clearCoupon', userAuth, couponController.clearCoupon);
+router.patch('/clearCoupon', userAuth, couponController.clearCoupon);
 
 
 router.get('/orders', userAuth, orderController.getOrder)
 router.get("/order-details", userAuth, orderController.loadOrderDetails);
-router.post("/orders/cancel", userAuth, orderController.cancelOrder);
-router.post("/orders/return", userAuth, orderController.returnOrder);
+router.patch("/orders/cancel", userAuth, orderController.cancelOrder);
+router.patch("/orders/return", userAuth, orderController.returnOrder);
 router.get("/download-invoice", userAuth, orderController.generateInvoice);
 
 
@@ -159,9 +163,6 @@ router.get('/auth/google/callback', passport.authenticate('google', { failureRed
 
 router.get("/shop", usercontroller.loadShoppingPage);
 router.get("/productDetails", productController.productDetails);
-
-
-
 
 
 

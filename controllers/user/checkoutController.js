@@ -65,31 +65,49 @@ function calculateShipping(subtotal) {
 //     }
 // };
 
-const   loadCheckoutPage = async (req, res) => {
-    try {
+const loadCheckoutPage = async (req, res) => {
+  try {
       const userId = req.session.user;
       const user = await User.findById(userId);
       const cart = await Cart.findOne({ userId }).populate('items.productId');
-      const wallet = await Wallet.findOne({userId})
-  
+      const wallet = await Wallet.findOne({ userId });
+
       if (!cart || cart.items.length === 0) {
-        return res.redirect('/shop');
+          return res.redirect('/shop');
       }
-  
-      const cartItems = cart.items.filter(item => item.productId && !item.productId.isBlocked && item.productId.stock > 0);
-  
-      let subTotal = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-      let shipping = calculateShipping(subTotal)
+
+      const validItems = cart.items.filter(item => 
+          item.productId && !item.productId.isBlocked && item.productId.stock > 0
+      );
+
+      if (validItems.length !== cart.items.length) {
+          cart.items = validItems;
+          await cart.save(); 
+      }
+
+      let subTotal = validItems.reduce((sum, item) => sum + item.totalPrice, 0);
+      let shipping = calculateShipping(subTotal);
       let totalAmount = subTotal + shipping;
-  
+
       const addressData = await Address.findOne({ userId });
-      const addresses  = addressData ? addressData : [];
-      res.render('user/checkout', { user, cartItems,subTotal, shipping, addresses , totalAmount ,discount:0,wallet});
-    } catch (error) {
+      const addresses = addressData ? addressData : [];
+
+      res.render('user/checkout', {
+          user,
+          cartItems: validItems,
+          subTotal,
+          shipping,
+          addresses,
+          totalAmount,
+          discount: 0,
+          wallet
+      });
+  } catch (error) {
       console.error('Error occurred while loading checkout:', error);
       return res.redirect('/pageNotFound');
-    }
-  };
+  }
+};
+
 
 module.exports = {
     loadCheckoutPage

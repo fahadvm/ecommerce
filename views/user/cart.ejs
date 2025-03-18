@@ -1,4 +1,4 @@
-<%-include("../../views/partials/user/header")%>
+<%-include(".. /../views/partials/user/header")%>
 
 	<div class="breadcrumb-section breadcrumb-bg">
 		<!-- ... existing breadcrumb content ... -->
@@ -16,7 +16,7 @@
 										<tr class="table-body-row">
 											<td class="product-remove">
 												<a href="#" onclick="confirmRemove('<%= item.productId._id %>')">
-													<i class="fa-solid fa-trash"></i>												</a>
+													<i class="fa-solid fa-trash"></i> </a>
 											</td>
 											<td class="product-image">
 												<img src="<%= item.productId.productImages[0] %>"
@@ -29,7 +29,7 @@
 											</td>
 											<td class="product-quantity">
 												<input type="number" class="quantity-input" value="<%= item.quantity %>"
-													min="1"  data-id="<%= item.productId._id %>"
+													min="1" data-id="<%= item.productId._id %>"
 													data-max-stock="<%=item.productId.stock%>">
 											</td>
 											<td class="product-total">₹<%= (item.price * item.quantity).toFixed(2) %>
@@ -47,31 +47,31 @@
 				<div class="col-lg-4">
 					<div class="total-section">
 						<% if (cartItems && cartItems.items.length> 0) {%>
-						<table class="total-table">
-							<tbody>
-								<tr class="total-data">
-									<td><strong>Subtotal: </strong></td>
-									<td id="subtotal">₹<%= subtotal.toFixed(2) %>
-									</td>
-								</tr>
-								<tr class="total-data">
-									<td><strong>Shipping: </strong></td>
-									<td id="shipping">₹<%= shipping.toFixed(2) %>
-									</td>
-								</tr>
-								<tr class="total-data">
-									<td><strong>Total: </strong></td>
-									<td id="total">₹<%= total.toFixed(2) %>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-						<div class="cart-buttons">
-							
-							<a href="/checkout" class="boxed-btn black">Check Out</a>
-							<%}%>
-							<a href="/shop" class="boxed-btn black">continue shoping</a>
-						</div>
+							<table class="total-table">
+								<tbody>
+									<tr class="total-data">
+										<td><strong>Subtotal: </strong></td>
+										<td id="subtotal">₹<%= subtotal.toFixed(2) %>
+										</td>
+									</tr>
+									<tr class="total-data">
+										<td><strong>Shipping: </strong></td>
+										<td id="shipping">₹<%= shipping.toFixed(2) %>
+										</td>
+									</tr>
+									<tr class="total-data">
+										<td><strong>Total: </strong></td>
+										<td id="total">₹<%= total.toFixed(2) %>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+							<div class="cart-buttons">
+
+								<a href="/checkout" class="boxed-btn black">Check Out</a>
+								<%}%>
+									<a href="/shop" class="boxed-btn black">continue shoping</a>
+							</div>
 					</div>
 					<!-- ... coupon section ... -->
 				</div>
@@ -79,24 +79,56 @@
 		</div>
 	</div>
 
-	<%-include("../../views/partials/user/footer")%>
+	<%-include(".. /../views/partials/user/footer")%>
 
 		<script>
-			 function confirmRemove(productId) {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to undo this action!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, remove it!"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = `/remove-cart/${productId}`;
-            }
-        });
-    }
+			function confirmRemove(productId) {
+				Swal.fire({
+					title: "Are you sure?",
+					text: "You won't be able to undo this action!",
+					icon: "warning",
+					showCancelButton: true,
+					confirmButtonColor: "#d33",
+					cancelButtonColor: "#3085d6",
+					confirmButtonText: "Yes, remove it!"
+				}).then((result) => {
+					if (result.isConfirmed) {
+						fetch(`/remove-cart/${productId}`, {
+							method: 'DELETE',
+							headers: {
+								'Content-Type': 'application/json'
+							}
+						})
+							.then(response => response.json())
+							.then(data => {
+								if (data.success) {
+									Swal.fire({
+										title: 'Removed!',
+										text: data.message,
+										icon: 'success'
+									}).then(() => {
+										location.reload(); // Refresh the cart or remove the product from the UI
+									});
+								} else {
+									Swal.fire({
+										title: 'Error!',
+										text: data.message,
+										icon: 'error'
+									});
+								}
+							})
+							.catch(error => {
+								console.error('Error:', error);
+								Swal.fire({
+									title: 'Error!',
+									text: 'An error occurred while removing the product.',
+									icon: 'error'
+								});
+							});
+					}
+				});
+			}
+
 			document.addEventListener('DOMContentLoaded', function () {
 				const quantityInputs = document.querySelectorAll('.quantity-input');
 
@@ -139,7 +171,7 @@
 						}
 
 						fetch('/update-cart-quantity', {
-							method: 'POST',
+							method: 'patch',
 							headers: {
 								'Content-Type': 'application/json',
 								'Accept': 'application/json'

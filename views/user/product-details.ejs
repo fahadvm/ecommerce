@@ -424,7 +424,7 @@
 
     $.ajax({
         url: '/addToWishlist',
-        method: 'POST',
+        method: 'patch',
         contentType: 'application/json', 
         data: JSON.stringify({ productId }),
         success: (response) => {
@@ -497,7 +497,7 @@
         //add to cart
         function addToCart(productId) {
             fetch('/add-cart', {
-                method: 'POST',
+                method: 'patch',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ productId })
             })

@@ -70,7 +70,7 @@
              <input
                type="text"
                id="coupon-name"
-               value="<%=findCoupon.name%>"
+               value="<%=findCoupon.couponCode%>"
                name="couponName"
                placeholder="Type here"
                class="form-control"
@@ -98,12 +98,14 @@
                class="form-control"
                id="expiringDate"
                required="true"
+               value="<%=findCoupon.expireOn%>"
+
              />
              <div id="error-end-date" class="error-message"></div>
            </div>
 
            <div>
-             <label for="offer-price" class="form-label">Offer Price</label>
+             <label for="offer-price" class="form-label">Offer percentage</label>
              <input
                type="text"
                id="offer-price"
@@ -111,7 +113,9 @@
                placeholder="Type here"
                class="form-control"
                value="<%=findCoupon.offerPrice%>"
+               oninput="if (this.value > 100) this.value = 100"
              />
+             
              <div id="error-offer-price" class="error-message"></div>
            </div>
 
@@ -123,7 +127,7 @@
                id="minimum-price"
                placeholder="Type here"
                class="form-control"
-               value="<%=findCoupon.minimumPrice%>"
+               value="<%=findCoupon.minPrice%>"
              />
              <div id="error-minimum-price" class="error-message"></div>
            </div>
@@ -219,11 +223,7 @@
      return false;
    }
 
-   if (offerPrice >= minimumPrice) {
-     document.getElementById("error-offer-price").innerHTML = "Offer Price must be less than Minimum Price";
-     return false;
-   }
-
+   
    return true;
  }
 
@@ -239,7 +239,7 @@
 
    $.ajax({
      url: `/admin/updateCoupon?couponId=${formData.couponId}`,
-     method: "POST",
+     method: "put",
      data: formData,
      success: function(response) {
        Swal.fire({

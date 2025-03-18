@@ -4,6 +4,7 @@ const Product = require("../../models/productSchema");
 const addCategory = async (req, res) => {
   try {
     const { name, description } = req.body;
+    console.log(" req.body:", req.body)
     const trimmedName = name.trim();
 
     if (!trimmedName || trimmedName.length === 0) {

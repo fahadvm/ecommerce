@@ -9,7 +9,7 @@ const couponController = require("../controllers/admin/couponController");
 const salesController = require("../controllers/admin/salesController");
 const transactionsController = require("../controllers/admin/transactionController");
 const profileController = require("../controllers/admin/profileController")
-
+ 
 
 
 const { adminAuth } = require('../middlewares/auth');
@@ -28,12 +28,15 @@ router.get('/pageerror', admincontroller.pageError);
 
 
 router.get('/users', adminAuth, customerController.customerInfo);
-router.get('/blockCustomer', adminAuth, customerController.customerBlocked);
-router.get('/unBlockCustomer', adminAuth, customerController.customerUnblocked);
+router.patch('/customers/:id/block', adminAuth, customerController.customerBlocked);
+router.patch('/customers/:id/unblock', adminAuth, customerController.customerUnblocked);
+
+
+
 
 router.get("/Profile", adminAuth, profileController.loadprofile)
 router.get("/edit-profile/:id", adminAuth, profileController.loadEditProfile)
-router.post("/update-profile/:id", adminAuth,upload.single('profilePicture'), profileController.updateProfile)
+router.put("/update-profile/:id", adminAuth,upload.single('profilePicture'), profileController.updateProfile)
 
 
 
@@ -41,14 +44,14 @@ router.post("/update-profile/:id", adminAuth,upload.single('profilePicture'), pr
 
 router.get('/category',adminAuth,categoryController.categoryInfo)
 router.post('/addcategory',adminAuth,categoryController.addCategory)
-router.post('/addCategoryOffer', adminAuth,categoryController.addCategoryOffer);
-router.post("/editCategoryOffer",adminAuth, categoryController.editCategoryOffer)
-router.post("/removeCategoryOffer",adminAuth, categoryController.removeCategoryOffer)
-router.post('/editCategory/:id',adminAuth, categoryController.editCategory);
+router.patch('/addCategoryOffer', adminAuth,categoryController.addCategoryOffer);
+router.put("/editCategoryOffer",adminAuth, categoryController.editCategoryOffer)
+router.delete("/removeCategoryOffer",adminAuth, categoryController.removeCategoryOffer)
+router.put('/editCategory/:id',adminAuth, categoryController.editCategory);
 router.get('/listCategory',adminAuth,categoryController.getListCategory);
 router.get('/unListCategory', adminAuth, categoryController.getUnlistCategory);
 router.delete("/deleteCategory/:id",adminAuth, categoryController.deleteCategory)
-router.get('/editCategory', adminAuth,categoryController.getEditCategory);
+router.put('/editCategory', adminAuth,categoryController.getEditCategory);
 
 
 router.get("/addProducts",adminAuth,  productController.getProductAddPage);
@@ -62,17 +65,17 @@ router.post("/addProducts",adminAuth,  upload.fields([
 
 
 router.get("/products",adminAuth,productController.getAllProducts);
-router.post("/addProductOffer",adminAuth,productController.addProductOffer);
-router.post("/removeProductOffer",adminAuth,productController.removeProductOffer);
+router.patch("/addProductOffer",adminAuth,productController.addProductOffer);
+router.delete("/removeProductOffer",adminAuth,productController.removeProductOffer);
 
 router.get("/blockProduct",adminAuth,productController.blockProduct);
 router.get("/unblockProduct",adminAuth,productController.unblockProduct);
 
 
 router.get("/editProduct",adminAuth,productController.getEditProduct)
-router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
+router.delete("/deleteImage",adminAuth,productController.deleteSingleImage)
 
-router.post("/editProduct/:id", adminAuth,upload.fields([
+router.put("/editProduct/:id", adminAuth,upload.fields([
     { name: 'image1', maxCount: 1 },
     { name: 'image2', maxCount: 1 },
     { name: 'image3', maxCount: 1 },
@@ -85,8 +88,8 @@ router.post("/editProduct/:id", adminAuth,upload.fields([
 
 router.get('/orders', adminAuth, orderController.getOrders);
 router.get('/orders/:id', adminAuth, orderController.getOrderDetails);
-router.post('/orders/update-status', adminAuth, orderController.updateOrderStatus);
-router.post('/orders/cancel', adminAuth, orderController.cancelOrder);
+router.put('/orders/update-status', adminAuth, orderController.updateOrderStatus);
+router.delete('/orders/cancel', adminAuth, orderController.cancelOrder);
 router.post('/orders/handle-return',orderController.handleOrderReturn)
 
 
@@ -94,9 +97,9 @@ router.post('/orders/handle-return',orderController.handleOrderReturn)
 //coupon management
 router.get('/coupon', adminAuth, couponController.loadCoupon);
 router.post('/createCoupon',adminAuth, couponController.createCoupon)
-router.get('/deletecoupon',adminAuth, couponController.deletecoupon)
+router.delete('/deletecoupon',adminAuth, couponController.deletecoupon)
 router.get('/editCoupon',adminAuth, couponController.editCoupon)
-router.post('/updatecoupon',adminAuth, couponController.updatecoupon)
+router.put('/updatecoupon',adminAuth, couponController.updatecoupon)
 
 
 

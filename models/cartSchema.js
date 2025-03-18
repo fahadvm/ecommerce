@@ -28,15 +28,11 @@ const cartSchema = new Schema(
           type: Number,
           required: false,
         },
-        status: {
-          type: String,
-          enum: ['Placed', 'Processing', 'Shipped', 'Delivered', 'Cancelled'], 
-          default: 'Placed',
-        },
-        cancellationReason: { 
-          type: String,
-          default: 'none',
-        },
+        productName:{
+          type :String,
+          required: false,
+
+        }
       },
     ],
   },

@@ -356,7 +356,7 @@ function deleteSingleImage(imageName, productId, index) {
             if (result.isConfirmed) {
                 $.ajax({
                     url: "/admin/deleteImage",
-                    method: "POST",
+                    method: "DELETE",
                     contentType: "application/json",
                     data: JSON.stringify({
                         imageNameToServer: imageName,
@@ -403,7 +403,7 @@ document.getElementById('editProductForm').addEventListener('submit', async func
 
     
     // Submit form data
-    const response = await fetch(this.action, { method: 'POST', body: formData });
+    const response = await fetch(this.action, { method: 'put', body: formData });
     const data = await response.json();
 
     Swal.fire({

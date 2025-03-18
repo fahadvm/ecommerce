@@ -8,6 +8,8 @@ const ejs = require('ejs')
 const path = require('path')
 const userRouter = require('./routes/userRouter')
 const adminRouters = require('./routes/adminRouter')
+const flash = require('connect-flash');
+
 
 
 
@@ -35,6 +37,12 @@ app.use(passport.session())
 
 
 
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.messages = req.flash();
+    next();
+});
 
 app.use((req,res,next)=>{
     res.set('cache-control',"no-store")

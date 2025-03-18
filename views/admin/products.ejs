@@ -368,7 +368,7 @@ async function editOffer(productId, currentOffer) {
 function updateOffer(productId, percentage) {
     $.ajax({
         url: "/admin/addProductOffer",
-        method: "post",
+        method: "patch",
         data: {
             productId: productId,
             percentage: percentage
@@ -402,7 +402,7 @@ function removeOffer(productId) {
         if (result.isConfirmed) {
             $.ajax({
                 url: "/admin/removeProductOffer",
-                method: 'post',
+                method: 'delete',
                 data: {
                     productId: productId
                 },

@@ -272,7 +272,7 @@
             if (status) {
                 try {
                     const response = await fetch('/admin/orders/update-status', {
-                        method: 'POST',
+                        method: 'put',
                         headers: {
                             'Content-Type': 'application/json',
                         },

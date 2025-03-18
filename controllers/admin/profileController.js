@@ -36,30 +36,27 @@ const loadEditProfile = async (req, res) => {
 
 const updateProfile = async (req, res) => {
     try {
-        console.log("haaai fahad");
-        const adminId = req.session.admin;
+        const { id } = req.params;
         const { username, email } = req.body;
-
-        const updatedData = { username, email };
-
-        if (req.file) {
-            const dpimage = `/uploads/${req.file.filename}`;
-            // Ensure 'image' is an array before pushing
-            if (!updatedData.image) {
-                updatedData.image = [];
-            }
-            updatedData.image.push(dpimage);
+        const profilePicture = req.file ? req.file.path : undefined;
+    
+        const updatedData = {
+          username,
+          email,
+          ...(profilePicture && { profilePicture }),
+        };
+    
+        const updatedAdmin = await Admin.findByIdAndUpdate(id, updatedData, { new: true });
+    
+        if (!updatedAdmin) {
+          return res.status(404).json({ message: 'Admin not found' });
         }
-
-        const user = await User.findByIdAndUpdate(adminId, updatedData, { new: true });
-        if (!user) {
-            return res.redirect("/pageNotFound");
-        }
-        res.redirect("/admin/profile");
-    } catch (error) {
+    
+        res.status(200).json(updatedAdmin);
+      } catch (error) {
         console.error('Error updating profile:', error);
-        res.redirect("/pageNotFound");
-    }
+        res.status(500).json({ message: 'Server error' });
+      }
 };
 
 
