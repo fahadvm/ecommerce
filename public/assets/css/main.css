@@ -2174,6 +2174,10 @@ a.video-play-btn {
   border-bottom-left-radius: 5px;
 }
 
+.founder-bg-1 {
+  background-image: url(../img/team/founder.jpg);
+}
+
 .team-bg-1 {
   background-image: url(../img/team/team-1.jpg);
 }

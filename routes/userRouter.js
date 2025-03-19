@@ -11,6 +11,9 @@ const orderController = require("../controllers/user/orderController")
 const walletController = require("../controllers/user/walletController")
 const walletController1 = require("../controllers/user/walletController1")
 const couponController = require('../controllers/user/couponController')
+const contactcontroller = require('../controllers/user/contactcontroller')
+
+
 const Coupon = require("../models/couponSchema")
 const Address = require("../models/addressSchema")
 const Order = require("../models/orderSchema")
@@ -157,6 +160,8 @@ router.get('/auth/google/callback', passport.authenticate('google', { failureRed
     }
 });
 
+router.get("/about", usercontroller.loadAboutpage);
+router.get("/contact", contactcontroller.loadContactPage);
 
 
 

@@ -335,6 +335,20 @@ const loadShoppingPage = async (req, res) => {
     }
 };
 
+const loadAboutpage = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const userData = await User.findById(userId)
+        if (!req.session.user) {
+            return res.render("user/about",{user:userData});
+        } else {
+            res.redirect('/')
+
+        }
+    } catch (error) {
+        return res.redirect("/pageNotFound")
+    }
+}
 
 
 
@@ -348,7 +362,8 @@ module.exports = {
     resendOtp,
     login,
     logout,
-    loadShoppingPage
+    loadShoppingPage,
+    loadAboutpage
 }
 
 
