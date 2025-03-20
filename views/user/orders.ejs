@@ -511,7 +511,7 @@
 
                                                     try {
                                                         const response = await fetch('/orders/cancel', {
-                                                            method: 'POST',
+                                                            method: 'patch',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify({ reason: finalReason, orderId })
                                                         });
@@ -571,7 +571,7 @@
 
                                                     try {
                                                         const response = await fetch('/orders/return', {  // Fixed the URL syntax
-                                                            method: 'POST',
+                                                            method: 'patch',
                                                             headers: { 'Content-Type': 'application/json' },
                                                             body: JSON.stringify({ reason: finalReason, orderId })
                                                         });

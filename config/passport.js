@@ -13,7 +13,7 @@ passport.use(new GoogleStrategy({
         
         let user = await User.findOne({googleId:profile.id});
         if(user){
-            return done(null,user)
+            return done(null,user)          
         }else{
             user = new User({
                 username:profile.displayName,

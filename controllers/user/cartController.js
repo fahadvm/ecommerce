@@ -65,6 +65,7 @@ const loadCart = async (req,res) => {
 
 
 const addCart = async (req, res) => {
+    console.log('addto cart is working')
     try {
         const { productId } = req.body;
         const quantity = 1;

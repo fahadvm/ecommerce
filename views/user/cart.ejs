@@ -1,4 +1,4 @@
-<%-include(".. /../views/partials/user/header")%>
+<%-include("../../views/partials/user/header")%>
 
 	<div class="breadcrumb-section breadcrumb-bg">
 		<!-- ... existing breadcrumb content ... -->
@@ -79,7 +79,7 @@
 		</div>
 	</div>
 
-	<%-include(".. /../views/partials/user/footer")%>
+	<%-include("../../views/partials/user/footer")%>
 
 		<script>
 			function confirmRemove(productId) {
@@ -171,7 +171,7 @@
 						}
 
 						fetch('/update-cart-quantity', {
-							method: 'patch',
+							method: 'post',
 							headers: {
 								'Content-Type': 'application/json',
 								'Accept': 'application/json'

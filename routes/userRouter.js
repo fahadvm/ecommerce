@@ -110,7 +110,7 @@ router.delete("/removeFromWishList", userAuth, wishlistController.removeProduct)
 router.get('/cart', userAuth, cartController.loadCart)
 router.patch('/add-cart', cartController.addCart)
 router.delete('/remove-cart/:id', userAuth, cartController.removeCart)
-router.patch('/update-cart-quantity', cartController.updatecartquantity)
+router.post('/update-cart-quantity', cartController.updatecartquantity)
 
 
 //checkout management
@@ -120,9 +120,9 @@ router.post("/placeOrder", userAuth, orderController.placeOrder);
 
 //coupon mangement
 router.get("/coupons", userAuth,  couponController.loadcoupon)
-router.patch('/applycoupon', userAuth, couponController.applyCoupon)
+router.post('/applycoupon', userAuth, couponController.applyCoupon)
 router.get('/getAvailableCoupons', userAuth, couponController.getAvailableCoupons);
-router.patch('/clearCoupon', userAuth, couponController.clearCoupon);
+router.post('/clearCoupon', userAuth, couponController.clearCoupon);
 
 
 router.get('/orders', userAuth, orderController.getOrder)
