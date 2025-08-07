@@ -62,7 +62,7 @@ app.use('/',userRouter);
 app.use('/admin',adminRouters)
 
 
-db() 
+db()
 app.listen(process.env.PORT,()=>{
     console.log(`server running http://localhost:${process.env.PORT}`)
 })

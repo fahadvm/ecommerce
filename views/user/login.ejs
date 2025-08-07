@@ -1,224 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome froot-peedika</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<%- include("../../views/partials/user/header1") %>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: center;
-            background-color: #5f5b5b;
-            padding: 20px;
-        }
 
-        .container {
-            display: flex;
-            flex-wrap: wrap;
-            width: 100%;
-            max-width: 900px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .login-container {
-            flex: 1;
-            max-width: 450px;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .image-container {
-            flex: 1;
-            max-width: 450px;
-            background-color: #EFE0DC;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-        }
-
-        .brand-image {
-            width: 100%;
-            max-width: 250px;
-            height: auto;
-        }
-
-        h1 {
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 12px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            font-size: 12px;
-            margin-bottom: 5px;
-            color: #333;
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background-color: #004d56;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .divider {
-            display: flex;
-            align-items: center;
-            text-align: center;
-            margin: 20px 0;
-            color: #ee1717;
-            font-size: 14px;
-        }
-
-        .divider::before,
-        .divider::after {
-            content: '';
-            flex: 1;
-            border-bottom: 1px solid #ddd;
-        }
-
-        .divider span {
-            padding: 0 10px;
-        }
-
-        .google-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background: white;
-            cursor: pointer;
-            font-size: 14px;
-            gap: 8px;
-        }
-
-        .google-btn img {
-            width: 18px;
-            height: 18px;
-        }
-
-        .signup-link {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 14px;
-        }
-
-        .signup-link a {
-            color: #00a3b5;
-            text-decoration: none;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                align-items: center;
-                max-width: 100%;
-            }
-
-            .login-container, .image-container {
-                max-width: 100%;
-                padding: 30px;
-            }
-
-            .brand-image {
-                max-width: 200px;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="login-container">
-            <h1>Welcome back!</h1>
-            <p class="subtitle">Enter your credentials to access your account</p>
-            
-            <% if (message) { %>
-                <div class="alert">
-                    <%= message %>
+<!-- breadcrumb part start-->
+    <section class="breadcrumb_part">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb_iner">
+                        <h2>login</h2>
+                    </div>
                 </div>
-            <% } %>
-
-            <form action="/login" method="post" id="loginform">
-              
-
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" placeholder="Enter your email" name="email" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" placeholder="Enter your password"  name="password" required>
-                </div>
-                
-
-                <button type="submit" class="login-btn">Login</button>
-                <a href="/forgot-password">forget password?</a>
-
-                <div class="divider">
-                    <span>or</span>
-                </div>
-
-                <a href="/auth/google" class="google-btn">
-                    <img src="assets/img/google.jpg" alt="Google Logo">
-                    Sign in with Google
-                </a>
-
-                <div class="signup-link">
-                    Don't have an account? <a href="/signup">Sign Up</a>
-                </div>
-            </form>
+            </div>
         </div>
+    </section>
+    <!-- breadcrumb part end-->
 
-        <div class="image-container">
-            <img src="assets/img/frootspeedika.png" alt="Froot-Peedika Logo" class="brand-image">
+    <!--================login_part Area =================-->
+    <section class="login_part section_padding ">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 col-md-6">
+                    <div class="login_part_text text-center">
+                        <div class="login_part_text_iner">
+                            <h2>New to our Shop?</h2>
+                            <p>There are advances being made in tastes and memories
+                                everyday, and a good example of this is the</p>
+                            <a href="signup" class="btn_3">Create an Account</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-6">
+                    <div class="login_part_form">
+                        <div class="login_part_form_iner">
+                            <h3>Welcome Back ! <br>
+                                Please Sign in now</h3>
+                            <form class="row contact_form" action="" method="post" novalidate="novalidate">
+                                <div class="col-md-12 form-group p_star">
+                                    <input type="text" class="form-control" id="name" name="name" value=""
+                                        placeholder="Username">
+                                </div>
+                                <div class="col-md-12 form-group p_star">
+                                    <input type="password" class="form-control" id="password" name="password" value=""
+                                        placeholder="Password">
+                                </div>
+                                <div class="col-md-12 form-group">
+                                    <div class="creat_account d-flex align-items-center">
+                                        <input type="checkbox" id="f-option" name="selector">
+                                        <label for="f-option">Remember me</label>
+                                    </div>
+                                </form>
+                                    <button class="btn_3">
+                                        log in
+                                    </button>
+                                    <a class="lost_pass" href="/signup">SignUP?</a>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</body>
-</html>
+    </section>
+
+    <%- include("../../views/partials/user/footer1") %>
